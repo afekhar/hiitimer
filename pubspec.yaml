@@ -103,4 +103,8 @@ flutter:
         weight: 700
       - asset: assets/google_fonts/BalooTamma2-ExtraBold.ttf
         weight: 800
+  - family: SofiaSansExtraCondensed
+    fonts:
+      - asset: assets/google_fonts/SofiaSansExtraCondensed-Black.ttf
+        weight: 900
 

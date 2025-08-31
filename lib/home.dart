@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:hiitimer/chrono.dart';
+import 'package:hiitimer/workout_config.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, required String title});
@@ -31,7 +32,17 @@ class _HomeState extends State<Home> {
 
     // Navigate to the landscape page
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const Chrono()),
+      MaterialPageRoute(builder: (_) {
+        const block1 =
+            TimerBlock(phaseUpWork: 20, phaseDownRest: 10, rounds: 7);
+        const block2 = TimerBlock(phaseUpWork: 20, phaseDownRest: 0, rounds: 1);
+
+        const workoutCfg =
+            WorkoutConfig(name: 'TABATA/HIIT', blocks: [block1, block2]);
+
+        const Chrono chrono = Chrono(workoutConfig: workoutCfg);
+        return chrono;
+      }),
     );
 
     setState(() {
