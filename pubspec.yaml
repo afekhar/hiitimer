@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/images/digits/green/
     - assets/images/digits/red/
+    - assets/images/buttons/
     - assets/sounds/
     
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -107,4 +108,3 @@ flutter:
     fonts:
       - asset: assets/google_fonts/SofiaSansExtraCondensed-Black.ttf
         weight: 900
-
