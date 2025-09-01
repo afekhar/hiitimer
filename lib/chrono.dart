@@ -7,33 +7,64 @@ import 'package:hiitimer/digital_timer.dart';
 import 'package:hiitimer/rounds_counter.dart';
 import 'package:hiitimer/theme.dart';
 import 'package:hiitimer/workout_config.dart';
-import 'package:hiitimer/chronot_button.dart';
+import 'package:hiitimer/chrono_button.dart';
 
-class ChronoInPause extends StatelessWidget {
+class ChronoInPause extends StatefulWidget {
   const ChronoInPause({super.key});
 
   @override
+  State<ChronoInPause> createState() => _ChronoInPauseState();
+}
+
+class _ChronoInPauseState extends State<ChronoInPause>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true); // repeat from 0 to 1 then from 1 to 0
+
+    _animation = Tween<double>(begin: 1.0, end: 0.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    log("---> ChronoInPause.dispose()");
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return IntrinsicWidth(
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 17), // espace horizontal
-        decoration: BoxDecoration(
-          color: Color(0xFF0000FF), // bleu
-          borderRadius:
-              BorderRadius.circular(12), // coins arrondis (~0.25 de la taille)
+    return FadeTransition(
+      opacity: _animation,
+      child: IntrinsicWidth(
+        child: Container(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 17), // espace horizontal
+          decoration: BoxDecoration(
+            color: Color(0xFF0000FF), // bleu
+            borderRadius:
+                BorderRadius.circular(12), // coins arrondis (~0.25 de la taille)
+          ),
+          height: 30,
+          child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                'en pause',
+                style: TextStyle(
+                    fontFamily: 'BalooTamma2',
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15.0,
+                    color: primary50),
+              )),
         ),
-        height: 30,
-        child: Align(
-            alignment: Alignment.center,
-            child: Text(
-              'en pause',
-              style: TextStyle(
-                  fontFamily: 'BalooTamma2',
-                  fontWeight: FontWeight.w900,
-                  fontSize: 15.0,
-                  color: primary50),
-            )),
       ),
     );
   }
@@ -73,10 +104,17 @@ class _ChronoButtonsBarState extends State<ChronoButtonsBar> {
   }
 }
 
-class ChronoHeader extends StatelessWidget {
+class ChronoHeader extends StatefulWidget {
   const ChronoHeader({super.key, required this.timerName});
 
   final String timerName;
+
+  @override
+  State<ChronoHeader> createState() => _ChronoHeaderState();
+}
+
+class _ChronoHeaderState extends State<ChronoHeader> {
+  final bool _inPauseMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +130,11 @@ class ChronoHeader extends StatelessWidget {
               Expanded(
                 child: FittedBox(
                   fit: BoxFit.scaleDown, // réduit la taille si nécessaire
-                  alignment: Alignment.centerLeft,
+                  alignment: _inPauseMode
+                      ? Alignment.bottomLeft
+                      : Alignment.centerLeft,
                   child: Text(
-                    timerName,
+                    widget.timerName,
                     style: TextStyle(
                       fontSize: 75,
                       fontFamily: "SofiaSansExtraCondensed",
@@ -105,7 +145,7 @@ class ChronoHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              ChronoInPause(),
+              _inPauseMode ? ChronoInPause() : SizedBox.shrink(),
             ],
           ),
         ),
