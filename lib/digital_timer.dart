@@ -7,20 +7,21 @@ import 'package:hiitimer/double_digits.dart';
 import 'package:hiitimer/beep_manager.dart';
 
 class DigitalTimer extends StatefulWidget {
-  const DigitalTimer({
-    super.key,
-    required this.targetInSeconds,
-  });
+  const DigitalTimer(
+      {super.key,
+      required this.targetInSeconds,
+      required this.onEnd,
+      this.setup = false});
 
   final int targetInSeconds;
+  final Function onEnd;
+  final bool setup;
 
   @override
   State<DigitalTimer> createState() => _DigitalTimerState();
 }
 
 class _DigitalTimerState extends State<DigitalTimer> {
-  int _count = 0;
-
   int _seconds = 0;
   int _minutes = 0;
 
@@ -29,26 +30,46 @@ class _DigitalTimerState extends State<DigitalTimer> {
     longBeepPath: 'sounds/beep_long.mp3',
   );
 
-  @override
-  void initState() {
-    super.initState();
+  _setUpTimer() {
+    int count = 0;
+
+    setState(() {
+      _seconds = count % 60;
+      _minutes = count ~/ 60;
+    });
 
     Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if ((_count++) < widget.targetInSeconds) {
+      if ((count++) < widget.targetInSeconds) {
         setState(() {
-          _seconds = _count % 60;
-          _minutes = _count ~/ 60;
+          _seconds = count % 60;
+          _minutes = count ~/ 60;
         });
 
-        if (_count == widget.targetInSeconds) {
+        if (count == widget.targetInSeconds) {
           beepManager.playLong();
-        } else if (_count > widget.targetInSeconds - 4) {
+        } else if (count > widget.targetInSeconds - 4) {
           beepManager.playShort();
         }
       } else {
         timer.cancel();
+        widget.onEnd();
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _setUpTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant DigitalTimer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.targetInSeconds != widget.targetInSeconds) {
+      _setUpTimer();
+    }
   }
 
   @override
@@ -74,9 +95,17 @@ class _DigitalTimerState extends State<DigitalTimer> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            DoubleDigits(color: "green", number: _minutes, displayRatio: ratio),
-            DigitalTimerDots(color: "green", displayRatio: ratio),
-            DoubleDigits(color: "green", number: _seconds, displayRatio: ratio),
+            Opacity(
+                opacity: widget.setup ? 0.0 : 1.0,
+                child: DoubleDigits(
+                    color: "green", number: _minutes, displayRatio: ratio)),
+            Opacity(
+                opacity: widget.setup ? 0.0 : 1.0,
+                child: DigitalTimerDots(color: "green", displayRatio: ratio)),
+            DoubleDigits(
+                color: widget.setup ? "red" : "green",
+                number: _seconds,
+                displayRatio: ratio),
           ],
         );
       },

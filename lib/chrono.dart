@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -35,7 +33,6 @@ class _ChronoInPauseState extends State<ChronoInPause>
 
   @override
   void dispose() {
-    log("---> ChronoInPause.dispose()");
     _controller.dispose();
     super.dispose();
   }
@@ -50,8 +47,8 @@ class _ChronoInPauseState extends State<ChronoInPause>
               const EdgeInsets.symmetric(horizontal: 17), // espace horizontal
           decoration: BoxDecoration(
             color: Color(0xFF0000FF), // bleu
-            borderRadius:
-                BorderRadius.circular(12), // coins arrondis (~0.25 de la taille)
+            borderRadius: BorderRadius.circular(
+                12), // coins arrondis (~0.25 de la taille)
           ),
           height: 30,
           child: Align(
@@ -94,7 +91,6 @@ class _ChronoButtonsBarState extends State<ChronoButtonsBar> {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      // crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ChronotButton(type: 'stop'),
         ChronotButton(type: 'play'),
@@ -118,7 +114,6 @@ class _ChronoHeaderState extends State<ChronoHeader> {
 
   @override
   Widget build(BuildContext context) {
-    log("---> ChronoHeader.build(...)");
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -140,7 +135,6 @@ class _ChronoHeaderState extends State<ChronoHeader> {
                       fontFamily: "SofiaSansExtraCondensed",
                       fontWeight: FontWeight.w900,
                       color: primary300,
-                      // background: Paint()..color = Colors.blue,
                     ),
                   ),
                 ),
@@ -158,8 +152,70 @@ class _ChronoHeaderState extends State<ChronoHeader> {
   }
 }
 
-class ChronoBody extends StatelessWidget {
-  const ChronoBody({super.key});
+enum Phase {
+  initialCountdown,
+  upWork,
+  downRest,
+}
+
+class WorkoutTimerDisplay extends StatefulWidget {
+  const WorkoutTimerDisplay({super.key, required this.config});
+
+  final WorkoutConfig config;
+
+  @override
+  State<WorkoutTimerDisplay> createState() => _WorkoutTimerDisplayState();
+}
+
+class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
+  Phase _phase = Phase.initialCountdown;
+
+  int _round = 0;
+  int _seconds = 10;
+  bool _setup = true;
+
+  int _currentBlock = 0;
+  int _roundsToComplete = 0;
+
+  onPhaseComplete() {
+    switch (_phase) {
+      case Phase.initialCountdown:
+        _phase = Phase.upWork;
+        _roundsToComplete = widget.config.blocks[0].rounds;
+
+        setState(() {
+          _setup = false;
+          _seconds = widget.config.blocks[0].phaseUpWork;
+          _round = 1;
+        });
+        break;
+      case Phase.upWork:
+        _phase = Phase.downRest;
+
+        setState(() {
+          _seconds = widget.config.blocks[_currentBlock].phaseDownRest;
+        });
+        break;
+      case Phase.downRest:
+        if ((_round + 1) > _roundsToComplete) {
+          _currentBlock++;
+
+          if (_currentBlock < widget.config.blocks.length) {
+            _roundsToComplete += widget.config.blocks[_currentBlock].rounds;
+          }
+        }
+
+        if (_round + 1 <= _roundsToComplete) {
+          _phase = Phase.upWork;
+
+          setState(() {
+            _seconds = widget.config.blocks[_currentBlock].phaseUpWork;
+            _round++;
+          });
+        }
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,12 +224,17 @@ class ChronoBody extends StatelessWidget {
       children: [
         Expanded(
           flex: 12,
-          child: RoundsCounter(round: 3),
+          child: Opacity(
+              opacity: _setup ? 0.0 : 1.0, child: RoundsCounter(round: _round)),
         ),
         Expanded(flex: 3, child: Container()),
         Expanded(
           flex: 40,
-          child: DigitalTimer(targetInSeconds: 10),
+          child: DigitalTimer(
+            targetInSeconds: _seconds,
+            onEnd: onPhaseComplete,
+            setup: _setup,
+          ),
         ),
       ],
     );
@@ -187,8 +248,6 @@ class Chrono extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("---> Chrono.build(...)");
-
     return Scaffold(
       backgroundColor: primary950,
       body: SafeArea(
@@ -201,34 +260,9 @@ class Chrono extends StatelessWidget {
                   timerName: workoutConfig.name,
                 ),
               ),
-              // Expanded(
-              //   child: Row(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       FittedBox(
-              //           fit: BoxFit.scaleDown, // réduit la taille si nécessaire
-              //           alignment: Alignment.centerLeft, // ou center, right, etc.
-              //           child: Text(
-              //       widget.workoutConfig.name,
-              //             style: TextStyle(
-              //               fontSize: 100,
-              //               fontFamily: "SofiaSansExtraCondensed",
-              //               fontWeight: FontWeight.w900,
-              //               color: primary200,
-              //             ), // taille max
-              //           ),
-              //         ),
-              //     ],
-              //   ),
-              // ),
-              // Expanded(child: Container()),
-              ChronoBody(),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.pop(context);
-              //   },
-              //   child: const Text("Back to Home"),
-              // ),
+              WorkoutTimerDisplay(
+                config: workoutConfig,
+              ),
             ],
           ),
         ),
