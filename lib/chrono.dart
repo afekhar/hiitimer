@@ -212,9 +212,23 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
             _seconds = widget.config.blocks[_currentBlock].phaseUpWork;
             _round++;
           });
+        } else {
+          WakelockPlus.disable();
         }
         break;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WakelockPlus.enable();
+  }
+
+  @override
+  void dispose() {
+    WakelockPlus.disable();
+    super.dispose();
   }
 
   @override
