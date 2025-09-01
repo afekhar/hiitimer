@@ -10,7 +10,7 @@ class ChronotButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double buttonHeight = min(60, constraints.maxHeight);
+        final double buttonHeight = min(50, constraints.maxHeight);
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 0),

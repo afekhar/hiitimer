@@ -31,7 +31,7 @@ class _DigitalTimerState extends State<DigitalTimer> {
   );
 
   _setUpTimer() {
-    int count = 0;
+    int count = widget.targetInSeconds;
 
     setState(() {
       _seconds = count % 60;
@@ -39,15 +39,15 @@ class _DigitalTimerState extends State<DigitalTimer> {
     });
 
     Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if ((count++) < widget.targetInSeconds) {
+      if ((--count) >= 0) {
         setState(() {
           _seconds = count % 60;
           _minutes = count ~/ 60;
         });
 
-        if (count == widget.targetInSeconds) {
+        if (count == 0) {
           beepManager.playLong();
-        } else if (count > widget.targetInSeconds - 4) {
+        } else if (count <= 3) {
           beepManager.playShort();
         }
       } else {

@@ -131,10 +131,10 @@ class _ChronoHeaderState extends State<ChronoHeader> {
                   child: Text(
                     widget.timerName,
                     style: TextStyle(
-                      fontSize: 75,
+                      fontSize: 60,
                       fontFamily: "SofiaSansExtraCondensed",
                       fontWeight: FontWeight.w900,
-                      color: primary300,
+                      color: primary700,
                     ),
                   ),
                 ),

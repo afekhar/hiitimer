@@ -22,7 +22,7 @@ class _HomeState extends State<Home> {
 
     // Switch to landscape orientation
     await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
 
     // Hide status bar and navigation bar

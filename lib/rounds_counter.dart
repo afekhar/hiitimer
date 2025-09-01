@@ -34,7 +34,7 @@ class RoundsCounter extends StatelessWidget {
                   fontSize: 100,
                   fontFamily: "BalooTamma2",
                   fontWeight: FontWeight.w700,
-                  color: primary200,
+                  color: primary700,
                 ), // taille max
               ),
             ),
