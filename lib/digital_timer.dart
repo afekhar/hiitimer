@@ -6,16 +6,27 @@ import 'package:hiitimer/dots.dart';
 import 'package:hiitimer/double_digits.dart';
 import 'package:hiitimer/beep_manager.dart';
 
-class DigitalTimer extends StatefulWidget {
-  const DigitalTimer(
-      {super.key,
-      required this.targetInSeconds,
-      required this.onEnd,
-      this.setup = false});
+enum DigitalTimerStatus { playing, paused, stopped }
 
-  final int targetInSeconds;
+class DigitalTimerSeconds {
+  const DigitalTimerSeconds({required this.seconds});
+
+  final int seconds;
+}
+
+class DigitalTimer extends StatefulWidget {
+  const DigitalTimer({
+    super.key,
+    required this.targetInSeconds,
+    required this.onEnd,
+    this.setup = false,
+    this.status = DigitalTimerStatus.playing,
+  });
+
+  final DigitalTimerSeconds targetInSeconds;
   final Function onEnd;
   final bool setup;
+  final DigitalTimerStatus status;
 
   @override
   State<DigitalTimer> createState() => _DigitalTimerState();
@@ -25,6 +36,8 @@ class _DigitalTimerState extends State<DigitalTimer> {
   int _seconds = 0;
   int _minutes = 0;
 
+  int _count = 0;
+
   Timer? _timer;
 
   final beepManager = BeepManager(
@@ -32,24 +45,35 @@ class _DigitalTimerState extends State<DigitalTimer> {
     longBeepPath: 'sounds/beep_long.mp3',
   );
 
-  _setUpTimer() {
-    int count = widget.targetInSeconds;
+  _stop() {
+    _timer?.cancel();
+    _count = widget.targetInSeconds.seconds;
+  }
 
+  _pause() {
+    _timer?.cancel();
+  }
+
+  _replay() {
+    _setUpTimer();
+  }
+
+  _setUpTimer() {
     setState(() {
-      _seconds = count % 60;
-      _minutes = count ~/ 60;
+      _seconds = _count % 60;
+      _minutes = _count ~/ 60;
     });
 
     _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if ((--count) >= 0) {
+      if ((--_count) >= 0) {
         setState(() {
-          _seconds = count % 60;
-          _minutes = count ~/ 60;
+          _seconds = _count % 60;
+          _minutes = _count ~/ 60;
         });
 
-        if (count == 0) {
+        if (_count == 0) {
           beepManager.playLong();
-        } else if (count <= 3) {
+        } else if (_count <= 3) {
           beepManager.playShort();
         }
       } else {
@@ -62,6 +86,8 @@ class _DigitalTimerState extends State<DigitalTimer> {
   @override
   void initState() {
     super.initState();
+
+    _count = widget.targetInSeconds.seconds;
     _setUpTimer();
   }
 
@@ -69,8 +95,26 @@ class _DigitalTimerState extends State<DigitalTimer> {
   void didUpdateWidget(covariant DigitalTimer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.targetInSeconds != widget.targetInSeconds) {
+    if (oldWidget.targetInSeconds !=
+        widget
+            .targetInSeconds) // returns false if two different objects, even if their values (seconds) are the same.
+    {
+      _count = widget.targetInSeconds.seconds;
       _setUpTimer();
+    }
+
+    if(oldWidget.status != widget.status) {
+      switch(widget.status) {
+        case DigitalTimerStatus.playing:
+          _replay();
+          break;
+        case DigitalTimerStatus.paused:
+          _pause();
+          break;
+        case DigitalTimerStatus.stopped:
+          _stop();
+          break;
+      }
     }
   }
 

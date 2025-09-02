@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -70,9 +71,11 @@ class _ChronoInPauseState extends State<ChronoInPause>
 }
 
 class ChronoHeader extends StatefulWidget {
-  const ChronoHeader({super.key, required this.timerName});
+  const ChronoHeader(
+      {super.key, required this.timerName, required this.buttons});
 
   final String timerName;
+  final List<ChronoButtonType> buttons;
 
   @override
   State<ChronoHeader> createState() => _ChronoHeaderState();
@@ -115,7 +118,9 @@ class _ChronoHeaderState extends State<ChronoHeader> {
         SizedBox(
           width: 100,
         ),
-        ChronoButtonsBar(),
+        ChronoButtonsBar(
+          buttons: widget.buttons,
+        ),
       ],
     );
   }
@@ -128,9 +133,13 @@ enum Phase {
 }
 
 class WorkoutTimerDisplay extends StatefulWidget {
-  const WorkoutTimerDisplay({super.key, required this.config});
+  const WorkoutTimerDisplay(
+      {super.key,
+      required this.config,
+      this.status = DigitalTimerStatus.playing});
 
   final WorkoutConfig config;
+  final DigitalTimerStatus status;
 
   @override
   State<WorkoutTimerDisplay> createState() => _WorkoutTimerDisplayState();
@@ -140,7 +149,7 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
   Phase _phase = Phase.initialCountdown;
 
   int _round = 0;
-  int _seconds = 10;
+  DigitalTimerSeconds _seconds = DigitalTimerSeconds(seconds: 10);
   bool _setup = true;
 
   int _currentBlock = 0;
@@ -154,7 +163,8 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
 
         setState(() {
           _setup = false;
-          _seconds = widget.config.blocks[0].phaseUpWork;
+          _seconds =
+              DigitalTimerSeconds(seconds: widget.config.blocks[0].phaseUpWork);
           _round = 1;
         });
         break;
@@ -162,7 +172,8 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
         _phase = Phase.downRest;
 
         setState(() {
-          _seconds = widget.config.blocks[_currentBlock].phaseDownRest;
+          _seconds = DigitalTimerSeconds(
+              seconds: widget.config.blocks[_currentBlock].phaseDownRest);
         });
         break;
       case Phase.downRest:
@@ -178,7 +189,8 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
           _phase = Phase.upWork;
 
           setState(() {
-            _seconds = widget.config.blocks[_currentBlock].phaseUpWork;
+            _seconds = DigitalTimerSeconds(
+                seconds: widget.config.blocks[_currentBlock].phaseUpWork);
             _round++;
           });
         } else {
@@ -192,6 +204,22 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
   void initState() {
     super.initState();
     WakelockPlus.enable();
+
+    ChronoButtonEventBus().stream.listen((event) {
+      if (!mounted) return;
+
+      if (event == ChronoButtonType.stop) {
+        _phase = Phase.initialCountdown;
+        _currentBlock = 0;
+        _roundsToComplete = 0;
+
+        setState(() {
+          _round = 0;
+          _seconds = DigitalTimerSeconds(seconds: 10);
+          _setup = true;
+        });
+      }
+    });
   }
 
   @override
@@ -217,6 +245,7 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
             targetInSeconds: _seconds,
             onEnd: onPhaseComplete,
             setup: _setup,
+            status: widget.status,
           ),
         ),
       ],
@@ -234,6 +263,13 @@ class Chrono extends StatefulWidget {
 }
 
 class _ChronoState extends State<Chrono> {
+  DigitalTimerStatus _timerDisplayStatus = DigitalTimerStatus.playing;
+  List<ChronoButtonType> _headerButtons = [
+    ChronoButtonType.pause,
+    ChronoButtonType.stop,
+    ChronoButtonType.close
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -241,12 +277,27 @@ class _ChronoState extends State<Chrono> {
     ChronoButtonEventBus().stream.listen((event) {
       if (!mounted) return;
 
-      switch (event) {
-        case ChronoButtonType.close:
-          Navigator.pop(context);
-          break;
-        default:
-          log("---> Button $event pressed");
+      if (event == ChronoButtonType.close) {
+        Navigator.pop(context);
+      } else if (event == ChronoButtonType.pause) {
+        setState(() {
+          _timerDisplayStatus = DigitalTimerStatus.paused;
+          _headerButtons = [ChronoButtonType.play, ChronoButtonType.close];
+        });
+      } else if (event == ChronoButtonType.stop) {
+        setState(() {
+          _timerDisplayStatus = DigitalTimerStatus.stopped;
+          _headerButtons = [ChronoButtonType.play, ChronoButtonType.close];
+        });
+      } else if (event == ChronoButtonType.play) {
+        setState(() {
+          _timerDisplayStatus = DigitalTimerStatus.playing;
+          _headerButtons = [
+            ChronoButtonType.pause,
+            ChronoButtonType.stop,
+            ChronoButtonType.close
+          ];
+        });
       }
     });
   }
@@ -263,10 +314,12 @@ class _ChronoState extends State<Chrono> {
               Expanded(
                 child: ChronoHeader(
                   timerName: widget.workoutConfig.name,
+                  buttons: _headerButtons,
                 ),
               ),
               WorkoutTimerDisplay(
                 config: widget.workoutConfig,
+                status: _timerDisplayStatus,
               ),
             ],
           ),

@@ -27,7 +27,9 @@ class ChronoButtonEventBus {
 }
 
 class ChronoButtonsBar extends StatefulWidget {
-  const ChronoButtonsBar({super.key});
+  const ChronoButtonsBar({super.key, required this.buttons});
+
+  final List<ChronoButtonType> buttons;
 
   @override
   State<ChronoButtonsBar> createState() => _ChronoButtonsBarState();
@@ -50,11 +52,7 @@ class _ChronoButtonsBarState extends State<ChronoButtonsBar> {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ChronotButton(type: ChronoButtonType.stop),
-        ChronotButton(type: ChronoButtonType.play),
-        ChronotButton(type: ChronoButtonType.close),
-      ],
+      children: widget.buttons.map((buttonType) => ChronotButton(type: buttonType),).toList(),
     );
   }
 }
