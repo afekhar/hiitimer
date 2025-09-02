@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-enum ChronoButtonType { play, stop, pause, replay, close }
+enum ChronoButtonType { play, stop, pause, close }
 
 class ChronoButtonEventBus {
   // Singleton

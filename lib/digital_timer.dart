@@ -6,7 +6,7 @@ import 'package:hiitimer/dots.dart';
 import 'package:hiitimer/double_digits.dart';
 import 'package:hiitimer/beep_manager.dart';
 
-enum DigitalTimerStatus { playing, paused, stopped }
+enum DigitalTimerStatus { idle, playing, paused, stopped }
 
 class DigitalTimerSeconds {
   const DigitalTimerSeconds({required this.seconds});
@@ -20,7 +20,7 @@ class DigitalTimer extends StatefulWidget {
     required this.targetInSeconds,
     required this.onEnd,
     this.setup = false,
-    this.status = DigitalTimerStatus.playing,
+    this.status = DigitalTimerStatus.idle,
   });
 
   final DigitalTimerSeconds targetInSeconds;
@@ -48,6 +48,11 @@ class _DigitalTimerState extends State<DigitalTimer> {
   _stop() {
     _timer?.cancel();
     _count = widget.targetInSeconds.seconds;
+    
+    setState(() {
+      _seconds = _count % 60;
+      _minutes = _count ~/ 60;
+    });
   }
 
   _pause() {
@@ -88,7 +93,6 @@ class _DigitalTimerState extends State<DigitalTimer> {
     super.initState();
 
     _count = widget.targetInSeconds.seconds;
-    _setUpTimer();
   }
 
   @override
@@ -100,11 +104,16 @@ class _DigitalTimerState extends State<DigitalTimer> {
             .targetInSeconds) // returns false if two different objects, even if their values (seconds) are the same.
     {
       _count = widget.targetInSeconds.seconds;
-      _setUpTimer();
+
+      if(widget.status == DigitalTimerStatus.playing) {
+        _setUpTimer();
+      }
     }
 
     if(oldWidget.status != widget.status) {
       switch(widget.status) {
+        case DigitalTimerStatus.idle:
+          break;
         case DigitalTimerStatus.playing:
           _replay();
           break;

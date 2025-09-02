@@ -82,7 +82,29 @@ class ChronoHeader extends StatefulWidget {
 }
 
 class _ChronoHeaderState extends State<ChronoHeader> {
-  final bool _inPauseMode = false;
+  bool _inPauseMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ChronoButtonEventBus().stream.listen((event) {
+      if (!mounted) return;
+
+      switch (event) {
+        case ChronoButtonType.pause:
+          setState(() {
+            _inPauseMode = true;
+          });
+          break;
+        default:
+          setState(() {
+            _inPauseMode = false;
+          });
+          break;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,9 +156,7 @@ enum Phase {
 
 class WorkoutTimerDisplay extends StatefulWidget {
   const WorkoutTimerDisplay(
-      {super.key,
-      required this.config,
-      this.status = DigitalTimerStatus.playing});
+      {super.key, required this.config, this.status = DigitalTimerStatus.idle});
 
   final WorkoutConfig config;
   final DigitalTimerStatus status;
@@ -263,10 +283,9 @@ class Chrono extends StatefulWidget {
 }
 
 class _ChronoState extends State<Chrono> {
-  DigitalTimerStatus _timerDisplayStatus = DigitalTimerStatus.playing;
+  DigitalTimerStatus _timerDisplayStatus = DigitalTimerStatus.idle;
   List<ChronoButtonType> _headerButtons = [
-    ChronoButtonType.pause,
-    ChronoButtonType.stop,
+    ChronoButtonType.play,
     ChronoButtonType.close
   ];
 
@@ -277,27 +296,32 @@ class _ChronoState extends State<Chrono> {
     ChronoButtonEventBus().stream.listen((event) {
       if (!mounted) return;
 
-      if (event == ChronoButtonType.close) {
-        Navigator.pop(context);
-      } else if (event == ChronoButtonType.pause) {
-        setState(() {
-          _timerDisplayStatus = DigitalTimerStatus.paused;
-          _headerButtons = [ChronoButtonType.play, ChronoButtonType.close];
-        });
-      } else if (event == ChronoButtonType.stop) {
-        setState(() {
-          _timerDisplayStatus = DigitalTimerStatus.stopped;
-          _headerButtons = [ChronoButtonType.play, ChronoButtonType.close];
-        });
-      } else if (event == ChronoButtonType.play) {
-        setState(() {
-          _timerDisplayStatus = DigitalTimerStatus.playing;
-          _headerButtons = [
-            ChronoButtonType.pause,
-            ChronoButtonType.stop,
-            ChronoButtonType.close
-          ];
-        });
+      switch (event) {
+        case ChronoButtonType.close:
+          Navigator.pop(context);
+          break;
+        case ChronoButtonType.play:
+          setState(() {
+            _timerDisplayStatus = DigitalTimerStatus.playing;
+            _headerButtons = [
+              ChronoButtonType.pause,
+              ChronoButtonType.stop,
+              ChronoButtonType.close
+            ];
+          });
+          break;
+        case ChronoButtonType.pause:
+          setState(() {
+            _timerDisplayStatus = DigitalTimerStatus.paused;
+            _headerButtons = [ChronoButtonType.play, ChronoButtonType.close];
+          });
+          break;
+        case ChronoButtonType.stop:
+          setState(() {
+            _timerDisplayStatus = DigitalTimerStatus.stopped;
+            _headerButtons = [ChronoButtonType.play, ChronoButtonType.close];
+          });
+          break;
       }
     });
   }
