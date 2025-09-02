@@ -40,8 +40,7 @@ class _HomeState extends State<Home> {
         const workoutCfg =
             WorkoutConfig(name: 'TABATA/HIIT', blocks: [block1, block2]);
 
-        const Chrono chrono = Chrono(workoutConfig: workoutCfg);
-        return chrono;
+        return Chrono(workoutConfig: workoutCfg);
       }),
     );
 

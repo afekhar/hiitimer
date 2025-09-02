@@ -1,10 +1,68 @@
 import 'dart:math';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+enum ChronoButtonType { play, stop, pause, replay, close }
+
+class ChronoButtonEventBus {
+  // Singleton
+  ChronoButtonEventBus._privateConstructor();
+  static final ChronoButtonEventBus _instance = ChronoButtonEventBus._privateConstructor();
+  factory ChronoButtonEventBus() => _instance;
+
+  final _controller = StreamController<ChronoButtonType>.broadcast();
+
+  // To emit an event
+  void emit(ChronoButtonType event) {
+    _controller.add(event);
+  }
+
+  // To subscribe to events
+  Stream<ChronoButtonType> get stream => _controller.stream;
+
+  void dispose() {
+    _controller.close();
+  }
+}
+
+class ChronoButtonsBar extends StatefulWidget {
+  const ChronoButtonsBar({super.key});
+
+  @override
+  State<ChronoButtonsBar> createState() => _ChronoButtonsBarState();
+}
+
+class _ChronoButtonsBarState extends State<ChronoButtonsBar> {
+  @override
+  void didChangeDependencies() {
+    final List<String> buttons = ChronoButtonType.values.map((e) => e.name).toList();
+
+    for (final button in buttons) {
+      precacheImage(
+          AssetImage('assets/images/buttons/chrono_$button.png'), context);
+    }
+
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ChronotButton(type: ChronoButtonType.stop),
+        ChronotButton(type: ChronoButtonType.play),
+        ChronotButton(type: ChronoButtonType.close),
+      ],
+    );
+  }
+}
 
 class ChronotButton extends StatelessWidget {
   const ChronotButton({super.key, required this.type});
 
-  final String type;
+  final ChronoButtonType type;
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +77,13 @@ class ChronotButton extends StatelessWidget {
             width: buttonHeight,
             child: InkWell(
               borderRadius: BorderRadius.circular(buttonHeight),
-              onTap: () => {},
+              onTap: () => {
+                ChronoButtonEventBus().emit(type)
+              },
               child: Ink(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/buttons/chrono_$type.png'),
+                    image: AssetImage('assets/images/buttons/chrono_${type.name}.png'),
                     fit: BoxFit.cover,
                   ),
                 ),

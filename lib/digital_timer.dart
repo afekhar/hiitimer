@@ -25,6 +25,8 @@ class _DigitalTimerState extends State<DigitalTimer> {
   int _seconds = 0;
   int _minutes = 0;
 
+  Timer? _timer;
+
   final beepManager = BeepManager(
     shortBeepPath: 'sounds/beep_short.mp3',
     longBeepPath: 'sounds/beep_long.mp3',
@@ -38,7 +40,7 @@ class _DigitalTimerState extends State<DigitalTimer> {
       _minutes = count ~/ 60;
     });
 
-    Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       if ((--count) >= 0) {
         setState(() {
           _seconds = count % 60;
@@ -74,7 +76,9 @@ class _DigitalTimerState extends State<DigitalTimer> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     beepManager.dispose();
+
     super.dispose();
   }
 

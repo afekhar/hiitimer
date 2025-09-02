@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -63,39 +65,6 @@ class _ChronoInPauseState extends State<ChronoInPause>
               )),
         ),
       ),
-    );
-  }
-}
-
-class ChronoButtonsBar extends StatefulWidget {
-  const ChronoButtonsBar({super.key});
-
-  @override
-  State<ChronoButtonsBar> createState() => _ChronoButtonsBarState();
-}
-
-class _ChronoButtonsBarState extends State<ChronoButtonsBar> {
-  @override
-  void didChangeDependencies() {
-    final List<String> buttons = ['stop', 'play', 'pause', 'pause', 'replay'];
-
-    for (final button in buttons) {
-      precacheImage(
-          AssetImage('assets/images/buttons/chrono_$button.png'), context);
-    }
-
-    super.didChangeDependencies();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        ChronotButton(type: 'stop'),
-        ChronotButton(type: 'play'),
-        ChronotButton(type: 'close'),
-      ],
     );
   }
 }
@@ -255,10 +224,32 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
   }
 }
 
-class Chrono extends StatelessWidget {
+class Chrono extends StatefulWidget {
   const Chrono({super.key, required this.workoutConfig});
 
   final WorkoutConfig workoutConfig;
+
+  @override
+  State<Chrono> createState() => _ChronoState();
+}
+
+class _ChronoState extends State<Chrono> {
+  @override
+  void initState() {
+    super.initState();
+
+    ChronoButtonEventBus().stream.listen((event) {
+      if (!mounted) return;
+
+      switch (event) {
+        case ChronoButtonType.close:
+          Navigator.pop(context);
+          break;
+        default:
+          log("---> Button $event pressed");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -271,11 +262,11 @@ class Chrono extends StatelessWidget {
             children: [
               Expanded(
                 child: ChronoHeader(
-                  timerName: workoutConfig.name,
+                  timerName: widget.workoutConfig.name,
                 ),
               ),
               WorkoutTimerDisplay(
-                config: workoutConfig,
+                config: widget.workoutConfig,
               ),
             ],
           ),
