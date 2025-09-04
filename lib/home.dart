@@ -4,6 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:hiitimer/chrono.dart';
 import 'package:hiitimer/workout_config.dart';
 
+const tabata = WorkoutConfig(name: 'TABATA/HIIT', blocks: [
+  TimerBlock(phaseUpWork: 20, phaseDownRest: 10, rounds: 7),
+  TimerBlock(phaseUpWork: 20, phaseDownRest: 0, rounds: 1),
+]);
+
+const testWorkout = WorkoutConfig(name: 'Test', blocks: [
+  TimerBlock(phaseUpWork: 10, phaseDownRest: 0, rounds: 1),
+  TimerBlock(phaseUpWork: 5, phaseDownRest: 0, rounds: 2),
+  TimerBlock(phaseUpWork: 3, phaseDownRest: 0, rounds: 1),
+]);
+
 class Home extends StatefulWidget {
   const Home({super.key, required String title});
 
@@ -33,14 +44,7 @@ class _HomeState extends State<Home> {
     // Navigate to the landscape page
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) {
-        const block1 =
-            TimerBlock(phaseUpWork: 20, phaseDownRest: 10, rounds: 7);
-        const block2 = TimerBlock(phaseUpWork: 20, phaseDownRest: 0, rounds: 1);
-
-        const workoutCfg =
-            WorkoutConfig(name: 'TABATA/HIIT', blocks: [block1, block2]);
-
-        return Chrono(workoutConfig: workoutCfg);
+        return Chrono(workoutConfig: tabata);
       }),
     );
 
@@ -57,6 +61,15 @@ class _HomeState extends State<Home> {
 
     // Show status bar and navigation bar again
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
   }
 
   @override

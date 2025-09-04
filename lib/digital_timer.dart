@@ -45,77 +45,92 @@ class _DigitalTimerState extends State<DigitalTimer> {
     longBeepPath: 'sounds/beep_long.mp3',
   );
 
-  _stop() {
-    _timer?.cancel();
+  _initialize() {
+    _initializeOrReset();
+  }
+
+  _reset() {
+    _initializeOrReset();
+  }
+
+  _initializeOrReset() {
     _count = widget.targetInSeconds.seconds;
-    
+
     setState(() {
       _seconds = _count % 60;
       _minutes = _count ~/ 60;
     });
+  }
+
+  _stop() {
+    _timer?.cancel();
+    _reset();
   }
 
   _pause() {
     _timer?.cancel();
   }
 
-  _replay() {
-    _setUpTimer();
+  _play() {
+    _setUpAndLaunchTimer();
   }
 
-  _setUpTimer() {
-    setState(() {
-      _seconds = _count % 60;
-      _minutes = _count ~/ 60;
-    });
+  _setUpAndLaunchTimer() {
+    if (_count == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Because of a conflict during the build of WorkoutTimerDisplay.
+        widget
+            .onEnd(); // shortcut when upWork or downRest = 0, otherwise we waist a timer tick (1s in our case).
+      });
+    } else {
+      _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+        if ((--_count) > 0) {
+          setState(() {
+            _seconds = _count % 60;
+            _minutes = _count ~/ 60;
+          });
 
-    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      if ((--_count) >= 0) {
-        setState(() {
-          _seconds = _count % 60;
-          _minutes = _count ~/ 60;
-        });
-
-        if (_count == 0) {
-          beepManager.playLong();
-        } else if (_count <= 3) {
-          beepManager.playShort();
+          if (_count == 1) {
+            beepManager.playLong();
+          } else if (_count <= 3) {
+            beepManager.playShort();
+          }
+        } else {
+          timer.cancel();
+          widget.onEnd();
         }
-      } else {
-        timer.cancel();
-        widget.onEnd();
-      }
-    });
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    _count = widget.targetInSeconds.seconds;
+    _initialize();
   }
 
   @override
   void didUpdateWidget(covariant DigitalTimer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.targetInSeconds !=
-        widget
-            .targetInSeconds) // returns false if two different objects, even if their values (seconds) are the same.
-    {
-      _count = widget.targetInSeconds.seconds;
-
-      if(widget.status == DigitalTimerStatus.playing) {
-        _setUpTimer();
+    if (widget.status == DigitalTimerStatus.playing) {
+      if (oldWidget.targetInSeconds !=
+          widget
+              .targetInSeconds) // returns false if two different objects, even if their values (seconds) are the same.
+      {
+        _initializeOrReset();
+        _play();
+      } else if (oldWidget.status != widget.status) {
+        _play();
       }
-    }
-
-    if(oldWidget.status != widget.status) {
-      switch(widget.status) {
+    } else {
+      switch (widget.status) {
         case DigitalTimerStatus.idle:
+          _initializeOrReset();
           break;
         case DigitalTimerStatus.playing:
-          _replay();
+          // Already addressed above.
           break;
         case DigitalTimerStatus.paused:
           _pause();

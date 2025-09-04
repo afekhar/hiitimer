@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -155,11 +152,16 @@ enum Phase {
 }
 
 class WorkoutTimerDisplay extends StatefulWidget {
-  const WorkoutTimerDisplay(
-      {super.key, required this.config, this.status = DigitalTimerStatus.idle});
+  const WorkoutTimerDisplay({
+    super.key,
+    required this.config,
+    required this.status,
+    this.onComplete,
+  });
 
   final WorkoutConfig config;
   final DigitalTimerStatus status;
+  final Function? onComplete;
 
   @override
   State<WorkoutTimerDisplay> createState() => _WorkoutTimerDisplayState();
@@ -214,6 +216,10 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
             _round++;
           });
         } else {
+          if (widget.onComplete != null) {
+            widget.onComplete!();
+          }
+
           WakelockPlus.disable();
         }
         break;
@@ -228,7 +234,7 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
     ChronoButtonEventBus().stream.listen((event) {
       if (!mounted) return;
 
-      if (event == ChronoButtonType.stop) {
+      if (event == ChronoButtonType.stop || event == ChronoButtonType.replay) {
         _phase = Phase.initialCountdown;
         _currentBlock = 0;
         _roundsToComplete = 0;
@@ -289,6 +295,16 @@ class _ChronoState extends State<Chrono> {
     ChronoButtonType.close
   ];
 
+  _workoutCompleted() {
+    setState(() {
+      _timerDisplayStatus = DigitalTimerStatus.idle;
+      _headerButtons = [
+        ChronoButtonType.replay,
+        ChronoButtonType.close,
+      ];
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -301,6 +317,7 @@ class _ChronoState extends State<Chrono> {
           Navigator.pop(context);
           break;
         case ChronoButtonType.play:
+        case ChronoButtonType.replay:
           setState(() {
             _timerDisplayStatus = DigitalTimerStatus.playing;
             _headerButtons = [
@@ -344,6 +361,7 @@ class _ChronoState extends State<Chrono> {
               WorkoutTimerDisplay(
                 config: widget.workoutConfig,
                 status: _timerDisplayStatus,
+                onComplete: _workoutCompleted,
               ),
             ],
           ),
