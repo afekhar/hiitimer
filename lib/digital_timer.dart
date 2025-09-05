@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:hiitimer/dots.dart';
 import 'package:hiitimer/double_digits.dart';
 import 'package:hiitimer/beep_manager.dart';
 
-enum DigitalTimerStatus { idle, playing, paused, stopped }
+enum DigitalTimerStatus { idle, playing, paused, stopped, completed }
 
 class DigitalTimerSeconds {
   const DigitalTimerSeconds({required this.seconds});
@@ -137,6 +138,13 @@ class _DigitalTimerState extends State<DigitalTimer> {
           break;
         case DigitalTimerStatus.stopped:
           _stop();
+          break;
+        case DigitalTimerStatus.completed:
+          setState(() {
+            _seconds = _count % 60;
+            _minutes = _count ~/ 60;
+          });
+          // Do nothing particular
           break;
       }
     }

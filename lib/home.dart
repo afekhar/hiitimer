@@ -5,14 +5,21 @@ import 'package:hiitimer/chrono.dart';
 import 'package:hiitimer/workout_config.dart';
 
 const tabata = WorkoutConfig(name: 'TABATA/HIIT', blocks: [
-  TimerBlock(phaseUpWork: 20, phaseDownRest: 10, rounds: 7),
-  TimerBlock(phaseUpWork: 20, phaseDownRest: 0, rounds: 1),
+  TimerBlock(phases: [20, 10], rounds: 7),
+  TimerBlock(phases: [20], rounds: 1),
+]);
+
+const emom = WorkoutConfig(name: 'E1MOM', blocks: [
+  // TimerBlock(phases: [60,60,60], rounds: 3),
+  TimerBlock(phases: [10,10], rounds: 3),
+  TimerBlock(phases: [5], rounds: 2),
+  TimerBlock(phases: [9], rounds: 1),
 ]);
 
 const testWorkout = WorkoutConfig(name: 'Test', blocks: [
-  TimerBlock(phaseUpWork: 10, phaseDownRest: 0, rounds: 1),
-  TimerBlock(phaseUpWork: 5, phaseDownRest: 0, rounds: 2),
-  TimerBlock(phaseUpWork: 3, phaseDownRest: 0, rounds: 1),
+  TimerBlock(phases: [10], rounds: 1),
+  TimerBlock(phases: [5], rounds: 2),
+  TimerBlock(phases: [3], rounds: 1),
 ]);
 
 class Home extends StatefulWidget {
@@ -44,7 +51,7 @@ class _HomeState extends State<Home> {
     // Navigate to the landscape page
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) {
-        return Chrono(workoutConfig: tabata);
+        return Chrono(workoutConfig: emom);
       }),
     );
 

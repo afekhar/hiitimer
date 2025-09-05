@@ -1,11 +1,9 @@
 class TimerBlock {
   const TimerBlock(
-      {required this.phaseUpWork,
-      required this.phaseDownRest,
+      {required this.phases,
       required this.rounds});
 
-  final int phaseUpWork;
-  final int phaseDownRest;
+  final List<int> phases;
   final int rounds;
 }
 

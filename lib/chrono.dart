@@ -145,12 +145,6 @@ class _ChronoHeaderState extends State<ChronoHeader> {
   }
 }
 
-enum Phase {
-  initialCountdown,
-  upWork,
-  downRest,
-}
-
 class WorkoutTimerDisplay extends StatefulWidget {
   const WorkoutTimerDisplay({
     super.key,
@@ -168,8 +162,7 @@ class WorkoutTimerDisplay extends StatefulWidget {
 }
 
 class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
-  Phase _phase = Phase.initialCountdown;
-
+  int _phase = 0;
   int _round = 0;
   DigitalTimerSeconds _seconds = DigitalTimerSeconds(seconds: 10);
   bool _setup = true;
@@ -178,52 +171,48 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
   int _roundsToComplete = 0;
 
   onPhaseComplete() {
-    switch (_phase) {
-      case Phase.initialCountdown:
-        _phase = Phase.upWork;
-        _roundsToComplete = widget.config.blocks[0].rounds;
+    if (_roundsToComplete == 0) // The first phase after the initial countdown.
+    {
+      _roundsToComplete = widget.config.blocks[0].rounds;
 
-        setState(() {
-          _setup = false;
-          _seconds =
-              DigitalTimerSeconds(seconds: widget.config.blocks[0].phaseUpWork);
-          _round = 1;
-        });
-        break;
-      case Phase.upWork:
-        _phase = Phase.downRest;
+      setState(() {
+        _setup = false;
+        _round = 1;
+      });
+    }
 
+    if (_phase < widget.config.blocks[_currentBlock].phases.length) {
+      setState(() {
+        _seconds = DigitalTimerSeconds(
+            seconds: widget.config.blocks[_currentBlock].phases[_phase]);
+      });
+    } else {
+      _phase = 0;
+
+      if ((_round + 1) > _roundsToComplete) {
+        _currentBlock++;
+
+        if (_currentBlock < widget.config.blocks.length) {
+          _roundsToComplete += widget.config.blocks[_currentBlock].rounds;
+        }
+      }
+
+      if (_round + 1 <= _roundsToComplete) {
         setState(() {
           _seconds = DigitalTimerSeconds(
-              seconds: widget.config.blocks[_currentBlock].phaseDownRest);
+              seconds: widget.config.blocks[_currentBlock].phases[0]);
+          _round++;
         });
-        break;
-      case Phase.downRest:
-        if ((_round + 1) > _roundsToComplete) {
-          _currentBlock++;
-
-          if (_currentBlock < widget.config.blocks.length) {
-            _roundsToComplete += widget.config.blocks[_currentBlock].rounds;
-          }
+      } else {
+        if (widget.onComplete != null) {
+          widget.onComplete!();
         }
 
-        if (_round + 1 <= _roundsToComplete) {
-          _phase = Phase.upWork;
-
-          setState(() {
-            _seconds = DigitalTimerSeconds(
-                seconds: widget.config.blocks[_currentBlock].phaseUpWork);
-            _round++;
-          });
-        } else {
-          if (widget.onComplete != null) {
-            widget.onComplete!();
-          }
-
-          WakelockPlus.disable();
-        }
-        break;
+        WakelockPlus.disable();
+      }
     }
+
+    _phase++;
   }
 
   @override
@@ -235,7 +224,7 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
       if (!mounted) return;
 
       if (event == ChronoButtonType.stop || event == ChronoButtonType.replay) {
-        _phase = Phase.initialCountdown;
+        _phase = 0;
         _currentBlock = 0;
         _roundsToComplete = 0;
 
@@ -297,7 +286,7 @@ class _ChronoState extends State<Chrono> {
 
   _workoutCompleted() {
     setState(() {
-      _timerDisplayStatus = DigitalTimerStatus.idle;
+      _timerDisplayStatus = DigitalTimerStatus.completed;
       _headerButtons = [
         ChronoButtonType.replay,
         ChronoButtonType.close,
