@@ -144,7 +144,6 @@ class _DigitalTimerState extends State<DigitalTimer> {
             _seconds = _count % 60;
             _minutes = _count ~/ 60;
           });
-          // Do nothing particular
           break;
       }
     }

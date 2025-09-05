@@ -64,6 +64,7 @@ flutter:
     - assets/images/digits/green/
     - assets/images/digits/red/
     - assets/images/buttons/
+    - assets/images/bg/
     - assets/sounds/
     
   # An image asset can refer to one or more resolution-specific "variants", see

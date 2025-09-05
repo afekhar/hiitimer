@@ -25,11 +25,11 @@ class BeepManager {
   }
 
   void playShort() {
-    // _shortPlayer.stop().then((_) => _shortPlayer.resume());
+    _shortPlayer.stop().then((_) => _shortPlayer.resume());
   }
 
   void playLong() {
-    // _longPlayer.stop().then((_) => _longPlayer.resume());
+    _longPlayer.stop().then((_) => _longPlayer.resume());
   }
 
   void dispose() {
