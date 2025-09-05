@@ -203,25 +203,24 @@ class _HomeState extends State<Home> {
                               MainAxisAlignment.end, // aligne en bas
                           children: [
                             Container(
-                              // padding: const EdgeInsets.all(60.0),
+                              padding: EdgeInsets.all(10.0),
                               decoration: BoxDecoration(
-                                color: primary700.withAlpha(225),
+                                color: primary900.withAlpha(220),
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 10.0),
+                                        vertical: 20.0, horizontal: 20.0),
                                     child: Text(
                                       'Choisis ton timer',
                                       style: TextStyle(
                                           fontSize: 24,
-                                          fontWeight: FontWeight.w700),
+                                          fontWeight: FontWeight.w500,
+                                          color: primary200),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: 20,
                                   ),
                                   ...wods.map(
                                     (wod) => Padding(
@@ -243,39 +242,6 @@ class _HomeState extends State<Home> {
                   );
                 },
               ),
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.end,
-              //   children: [
-              //     Container(
-              //       color: Colors.red,
-              //       child: ListView(
-              //         shrinkWrap: true,
-              //         children: [
-              //           Padding(
-              //             padding: const EdgeInsets.symmetric(vertical: 10.0),
-              //             child: Text(
-              //               'Choisis ton timer',
-              //               style: TextStyle(
-              //                   fontSize: 24, fontWeight: FontWeight.w700),
-              //             ),
-              //           ),
-              //           SizedBox(
-              //             height: 20,
-              //           ),
-              //           ...wods.map(
-              //             (wod) => Padding(
-              //               padding: EdgeInsets.all(10.0),
-              //               child: ElevatedButton(
-              //                 onPressed: () => launchChrono(context, wod),
-              //                 child: Text(wod.name),
-              //               ),
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ],
-              // ),
             ],
           ),
         ),
