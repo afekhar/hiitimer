@@ -204,6 +204,84 @@ class TimersChooser extends StatelessWidget {
   }
 }
 
+class TimerConfigBlock extends StatelessWidget {
+  const TimerConfigBlock({super.key, required this.index, required this.block});
+
+  final int index;
+  final TimerBlock block;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: primary800,
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text('Bloc${index+1}', style: TextStyle(
+                  fontFamily: 'BalooTamma2',
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w600,
+                  color: primary400,
+                ),),
+              ),
+              SizedBox(
+                height: 180.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      CircleAvatar(
+                        radius: 25.0,
+                        backgroundColor: primary300.withAlpha(75),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.add,
+                            size: 25.0,
+                            color: primary50,
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: 10.0,
+            right: 10.0,
+            child: CircleAvatar(
+              radius: 12,
+              backgroundColor: primary300.withAlpha(75),
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.close,
+                  size: 15.0,
+                  color: primary50,
+                ),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 class TimerConfigDialog extends StatelessWidget {
   const TimerConfigDialog(
       {super.key, required this.timerConfig, required this.onClose});
@@ -224,23 +302,55 @@ class TimerConfigDialog extends StatelessWidget {
         child: Stack(
           children: [
             Container(
+              width: double.infinity,
+              height: double.infinity,
               decoration: BoxDecoration(
                 color: primary950,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: primary700),
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding:
+                        EdgeInsets.only(left: 20.0, top: 20.0, right: 80.0),
+                    child: Text(
+                      timerConfig!.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontFamily: 'BalooTamma2',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 30.0,
+                          color: primary100),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Expanded(
+                      child: ListView(
+                    children: timerConfig!.blocks.asMap().entries
+                        .map((entry) => Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5.0, horizontal: 15.0),
+                              child: TimerConfigBlock(index:entry.key, block:entry.value),
+                            ))
+                        .toList(),
+                  ))
+                ],
+              ),
             ),
             Positioned(
-              top: 20.0,
-              right: 20.0,
+              top: 15.0,
+              right: 15.0,
               child: CircleAvatar(
-                radius: 20,
+                radius: 15,
                 backgroundColor: primary300.withAlpha(75),
                 child: IconButton(
                   onPressed: onClose,
                   icon: const Icon(
                     Icons.close,
-                    size: 20.0,
+                    size: 15.0,
                     color: primary50,
                   ),
                   padding: EdgeInsets.zero,
@@ -263,7 +373,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool _navigatingToChronoPage = false;
-  WorkoutConfig? _currentConfig = null;
+  WorkoutConfig? _currentConfig;
 
   _openTimerConfig(WorkoutConfig cfg) {
     setState(() {
@@ -314,7 +424,9 @@ class _HomeState extends State<Home> {
     ]);
   }
 
-  _closeTimerConfig() {
+  _closeTimerConfig() async {
+    await _launchChrono(context, _currentConfig!);
+
     setState(() {
       _currentConfig = null;
     });
