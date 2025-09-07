@@ -204,6 +204,127 @@ class TimersChooser extends StatelessWidget {
   }
 }
 
+class TimerConfigPhase extends StatelessWidget {
+  const TimerConfigPhase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+      child: Container(
+        width: double.infinity,
+        height: 40.0,
+        decoration: BoxDecoration(
+          color: primary700,
+          borderRadius: BorderRadius.circular(25.0),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 12,
+                backgroundColor: primary300.withAlpha(75),
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.add,
+                    size: 15.0,
+                    color: primary50,
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+              Row(
+                children: [
+                  Text(
+                    'Phase1:',
+                    style: TextStyle(
+                      // fontFamily: 'BalooTamma2',
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w600,
+                      color: primary400,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '00',
+                          style: TextStyle(
+                            // fontFamily: 'SofiaSansExtraCondensed',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 25.0,
+                            color: primary200,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'm ',
+                          style: TextStyle(
+                            // fontFamily: 'SofiaSansExtraCondensed',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15.0,
+                            color: primary200,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5.0,
+                  ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '00',
+                          style: TextStyle(
+                            // fontFamily: 'SofiaSansExtraCondensed',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 25.0,
+                            color: primary200,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 's',
+                          style: TextStyle(
+                            // fontFamily: 'SofiaSansExtraCondensed',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 15.0,
+                            color: primary200,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              CircleAvatar(
+                radius: 12,
+                backgroundColor: primary300.withAlpha(75),
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.close,
+                    size: 15.0,
+                    color: primary50,
+                  ),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class TimerConfigBlock extends StatelessWidget {
   const TimerConfigBlock({super.key, required this.index, required this.block});
 
@@ -225,15 +346,21 @@ class TimerConfigBlock extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Text('Bloc${index+1}', style: TextStyle(
-                  fontFamily: 'BalooTamma2',
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w600,
-                  color: primary400,
-                ),),
+                child: Text(
+                  'Bloc${index + 1}',
+                  style: TextStyle(
+                    fontFamily: 'BalooTamma2',
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w600,
+                    color: primary400,
+                  ),
+                ),
               ),
+              ...block.phases.asMap().entries.map((entry) {
+                return TimerConfigPhase();
+              }),
               SizedBox(
-                height: 180.0,
+                height: 80.0,
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Row(
@@ -329,11 +456,14 @@ class TimerConfigDialog extends StatelessWidget {
                   SizedBox(height: 20.0),
                   Expanded(
                       child: ListView(
-                    children: timerConfig!.blocks.asMap().entries
+                    children: timerConfig!.blocks
+                        .asMap()
+                        .entries
                         .map((entry) => Padding(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 5.0, horizontal: 15.0),
-                              child: TimerConfigBlock(index:entry.key, block:entry.value),
+                              child: TimerConfigBlock(
+                                  index: entry.key, block: entry.value),
                             ))
                         .toList(),
                   ))
