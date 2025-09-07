@@ -205,10 +205,16 @@ class TimersChooser extends StatelessWidget {
 }
 
 class TimerConfigPhase extends StatelessWidget {
-  const TimerConfigPhase({super.key});
+  const TimerConfigPhase({super.key, required this.index, required this.count});
+
+  final int index;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
+    final seconds = count % 60;
+    final minutes = count ~/ 60;
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
       child: Container(
@@ -240,7 +246,7 @@ class TimerConfigPhase extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'Phase1:',
+                    'Phase${index + 1}:',
                     style: TextStyle(
                       // fontFamily: 'BalooTamma2',
                       fontSize: 20.0,
@@ -255,7 +261,7 @@ class TimerConfigPhase extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: '00',
+                          text: minutes.toString().padLeft(1, '0'),
                           style: TextStyle(
                             // fontFamily: 'SofiaSansExtraCondensed',
                             fontWeight: FontWeight.w600,
@@ -282,7 +288,7 @@ class TimerConfigPhase extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: '00',
+                          text: seconds.toString().padLeft(1, '0'),
                           style: TextStyle(
                             // fontFamily: 'SofiaSansExtraCondensed',
                             fontWeight: FontWeight.w600,
@@ -325,6 +331,31 @@ class TimerConfigPhase extends StatelessWidget {
   }
 }
 
+class TimerConfigRounds extends StatelessWidget {
+  const TimerConfigRounds({super.key, required this.rounds});
+
+  final int rounds;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: primary500,
+      ),
+      child: Text(
+        'x$rounds rounds',
+        style: TextStyle(
+            // fontFamily: 'BalooTamma2',
+            fontSize: 20.0,
+            fontWeight: FontWeight.w800,
+            color: primary900),
+      ),
+    );
+  }
+}
+
 class TimerConfigBlock extends StatelessWidget {
   const TimerConfigBlock({super.key, required this.index, required this.block});
 
@@ -357,14 +388,22 @@ class TimerConfigBlock extends StatelessWidget {
                 ),
               ),
               ...block.phases.asMap().entries.map((entry) {
-                return TimerConfigPhase();
+                return TimerConfigPhase(index: entry.key, count: entry.value);
               }),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Center(
+                  child: TimerConfigRounds(
+                    rounds: block.rounds,
+                  ),
+                ),
+              ),
               SizedBox(
                 height: 80.0,
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       CircleAvatar(
@@ -375,7 +414,7 @@ class TimerConfigBlock extends StatelessWidget {
                           icon: const Icon(
                             Icons.add,
                             size: 25.0,
-                            color: primary50,
+                            color: primary950,
                           ),
                           padding: EdgeInsets.zero,
                         ),
