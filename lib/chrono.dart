@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:hiitimer/digital_timer.dart';
@@ -337,22 +338,25 @@ class _ChronoState extends State<Chrono> {
     return Scaffold(
       backgroundColor: primary950,
       body: SafeArea(
-        child: SizedBox.expand(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: ChronoHeader(
-                  timerName: widget.workoutConfig.name,
-                  buttons: _headerButtons,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 0.0, left: 20.0, right: 20.0, bottom: 10.0),
+          child: SizedBox.expand(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ChronoHeader(
+                    timerName: widget.workoutConfig.name,
+                    buttons: _headerButtons,
+                  ),
                 ),
-              ),
-              WorkoutTimerDisplay(
-                config: widget.workoutConfig,
-                status: _timerDisplayStatus,
-                onComplete: _workoutCompleted,
-              ),
-            ],
+                WorkoutTimerDisplay(
+                  config: widget.workoutConfig,
+                  status: _timerDisplayStatus,
+                  onComplete: _workoutCompleted,
+                ),
+              ],
+            ),
           ),
         ),
       ),

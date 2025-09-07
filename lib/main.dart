@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'HIITimer',
       debugShowCheckedModeBanner: false,
       theme: darkTheme,
-      home: const Home(title: 'Home'),
+      home: const Home(),
     );
   }
 }
