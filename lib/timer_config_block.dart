@@ -1,4 +1,4 @@
-
+import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:hiitimer/theme.dart';
@@ -6,11 +6,63 @@ import 'package:hiitimer/timer_config_phase.dart';
 import 'package:hiitimer/timer_config_rounds.dart';
 import 'package:hiitimer/workout_config.dart';
 
-class TimerConfigBlock extends StatelessWidget {
+class TimerConfigBlock extends StatefulWidget {
   const TimerConfigBlock({super.key, required this.index, required this.block});
 
   final int index;
   final TimerBlock block;
+
+  @override
+  State<TimerConfigBlock> createState() => _TimerConfigBlockState();
+}
+
+class _TimerConfigBlockState extends State<TimerConfigBlock> {
+  List<int> _phases = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _phases = [...widget.block.phases];
+  }
+
+  removePhase(int index, BuildContext context) {
+    if (_phases.length > 1) {
+     setState(() {
+       _phases = _phases.asMap().entries.where((entry) => entry.key != index).map((entry) => entry.value).toList();
+     }); 
+    }
+    else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Suppression impossible"),
+          content: const Text(
+            "Un bloc doit contenir au moins une phase. "
+            "Vous ne pouvez pas supprimer la dernière phase.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  addPhase(int index) {
+    final phase = _phases.asMap().entries.where((entry) => entry.key == index).first.value;
+    
+    setState(() {
+      _phases = [
+        ..._phases.sublist(0,index+1),
+        phase,
+        ..._phases.sublist(index+1)
+      ];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +80,7 @@ class TimerConfigBlock extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'Bloc${index + 1}',
+                  'Bloc${widget.index + 1}',
                   style: TextStyle(
                     fontFamily: 'BalooTamma2',
                     fontSize: 20.0,
@@ -37,14 +89,19 @@ class TimerConfigBlock extends StatelessWidget {
                   ),
                 ),
               ),
-              ...block.phases.asMap().entries.map((entry) {
-                return TimerConfigPhase(index: entry.key, count: entry.value);
+              ..._phases.asMap().entries.map((entry) {
+                return TimerConfigPhase(
+                  index: entry.key,
+                  count: entry.value,
+                  onAddPhase: addPhase,
+                  onRemovePhase: (index) => removePhase(index, context),
+                );
               }),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Center(
                   child: TimerConfigRounds(
-                    rounds: block.rounds,
+                    rounds: widget.block.rounds,
                   ),
                 ),
               ),
@@ -97,4 +154,3 @@ class TimerConfigBlock extends StatelessWidget {
     );
   }
 }
-

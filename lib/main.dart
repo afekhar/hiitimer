@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'HIITimer',
       debugShowCheckedModeBanner: false,
-      theme: darkTheme,
+      theme: lightTheme,
       home: const Home(),
     );
   }

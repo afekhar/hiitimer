@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:hiitimer/theme.dart';
 
 class TimerConfigPhase extends StatelessWidget {
-  const TimerConfigPhase({super.key, required this.index, required this.count});
+  const TimerConfigPhase({super.key, required this.index, required this.count, required this.onAddPhase, required this.onRemovePhase});
 
   final int index;
   final int count;
+  final Function(int index) onAddPhase;
+  final Function(int index) onRemovePhase;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class TimerConfigPhase extends StatelessWidget {
                 radius: 12,
                 backgroundColor: primary300.withAlpha(75),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () => onAddPhase(index),
                   icon: const Icon(
                     Icons.add,
                     size: 15.0,
@@ -113,7 +115,7 @@ class TimerConfigPhase extends StatelessWidget {
                 radius: 12,
                 backgroundColor: primary300.withAlpha(75),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () => onRemovePhase(index),
                   icon: const Icon(
                     Icons.close,
                     size: 15.0,
