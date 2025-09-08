@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:hiitimer/theme.dart';
@@ -6,33 +5,39 @@ import 'package:hiitimer/timer_config_phase.dart';
 import 'package:hiitimer/timer_config_rounds.dart';
 import 'package:hiitimer/workout_config.dart';
 
-class TimerConfigBlock extends StatefulWidget {
-  const TimerConfigBlock({super.key, required this.index, required this.block});
+class TimerConfigBlock extends StatelessWidget {
+  const TimerConfigBlock(
+      {super.key,
+      required this.index,
+      required this.block,
+      required this.onBlockChange,
+      required this.onAddBlock,
+      required this.onRemoveBlock});
 
   final int index;
   final TimerBlock block;
 
-  @override
-  State<TimerConfigBlock> createState() => _TimerConfigBlockState();
-}
+  final Function(int index, TimerBlock block) onBlockChange;
+  final Function(int index) onAddBlock;
+  final Function(int index) onRemoveBlock;
 
-class _TimerConfigBlockState extends State<TimerConfigBlock> {
-  List<int> _phases = [];
+  removePhase(int phaseIndex, BuildContext context) {
+    final newBlock = TimerBlock(
+      phases: block.phases
+          .asMap()
+          .entries
+          .where((e) => e.key != phaseIndex)
+          .map((e) => e.value)
+          .toList(),
+      rounds: block.rounds,
+    );
 
-  @override
-  void initState() {
-    super.initState();
-
-    _phases = [...widget.block.phases];
-  }
-
-  removePhase(int index, BuildContext context) {
-    if (_phases.length > 1) {
-     setState(() {
-       _phases = _phases.asMap().entries.where((entry) => entry.key != index).map((entry) => entry.value).toList();
-     }); 
-    }
-    else {
+    if (block.phases.length > 1) {
+      onBlockChange(
+        index,
+        newBlock,
+      );
+    } else {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -52,16 +57,27 @@ class _TimerConfigBlockState extends State<TimerConfigBlock> {
     }
   }
 
-  addPhase(int index) {
-    final phase = _phases.asMap().entries.where((entry) => entry.key == index).first.value;
-    
-    setState(() {
-      _phases = [
-        ..._phases.sublist(0,index+1),
-        phase,
-        ..._phases.sublist(index+1)
-      ];
-    });
+  addPhase(int phaseIndex) {
+    final newPhase = block.phases
+        .asMap()
+        .entries
+        .where((entry) => entry.key == phaseIndex)
+        .first
+        .value;
+
+    final newBlock = TimerBlock(
+      phases: [
+        ...block.phases.sublist(0, phaseIndex + 1),
+        newPhase,
+        ...block.phases.sublist(phaseIndex + 1),
+      ],
+      rounds: block.rounds,
+    );
+
+    onBlockChange(
+      index,
+      newBlock,
+    );
   }
 
   @override
@@ -80,7 +96,7 @@ class _TimerConfigBlockState extends State<TimerConfigBlock> {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'Bloc${widget.index + 1}',
+                  'Bloc${index + 1}',
                   style: TextStyle(
                     fontFamily: 'BalooTamma2',
                     fontSize: 20.0,
@@ -89,7 +105,7 @@ class _TimerConfigBlockState extends State<TimerConfigBlock> {
                   ),
                 ),
               ),
-              ..._phases.asMap().entries.map((entry) {
+              ...block.phases.asMap().entries.map((entry) {
                 return TimerConfigPhase(
                   index: entry.key,
                   count: entry.value,
@@ -101,7 +117,7 @@ class _TimerConfigBlockState extends State<TimerConfigBlock> {
                 padding: const EdgeInsets.all(20.0),
                 child: Center(
                   child: TimerConfigRounds(
-                    rounds: widget.block.rounds,
+                    rounds: block.rounds,
                   ),
                 ),
               ),
@@ -117,7 +133,7 @@ class _TimerConfigBlockState extends State<TimerConfigBlock> {
                         radius: 25.0,
                         backgroundColor: primary300.withAlpha(75),
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () => onAddBlock(index),
                           icon: const Icon(
                             Icons.add,
                             size: 25.0,
@@ -139,7 +155,7 @@ class _TimerConfigBlockState extends State<TimerConfigBlock> {
               radius: 12,
               backgroundColor: primary300.withAlpha(75),
               child: IconButton(
-                onPressed: () {},
+                onPressed: () => onRemoveBlock(index),
                 icon: const Icon(
                   Icons.close,
                   size: 15.0,

@@ -3,6 +3,10 @@ class TimerBlock {
       {required this.phases,
       required this.rounds});
 
+  TimerBlock.from(TimerBlock other) : 
+    phases = [...other.phases],
+    rounds = other.rounds;
+
   final List<int> phases;
   final int rounds;
 }
