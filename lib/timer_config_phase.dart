@@ -1,10 +1,17 @@
-
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:hiitimer/bottom_overlay.dart';
+import 'package:hiitimer/phase_setter.dart';
 
 import 'package:hiitimer/theme.dart';
 
-class TimerConfigPhase extends StatelessWidget {
-  const TimerConfigPhase({super.key, required this.index, required this.count, required this.onAddPhase, required this.onRemovePhase});
+class TimerConfigPhase extends StatefulWidget {
+  const TimerConfigPhase(
+      {super.key,
+      required this.index,
+      required this.count,
+      required this.onAddPhase,
+      required this.onRemovePhase});
 
   final int index;
   final int count;
@@ -12,123 +19,153 @@ class TimerConfigPhase extends StatelessWidget {
   final Function(int index) onRemovePhase;
 
   @override
-  Widget build(BuildContext context) {
-    final seconds = count % 60;
-    final minutes = count ~/ 60;
+  State<TimerConfigPhase> createState() => _TimerConfigPhaseState();
+}
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-      child: Container(
-        width: double.infinity,
-        height: 40.0,
-        decoration: BoxDecoration(
-          color: primary700,
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: primary300.withAlpha(75),
-                child: IconButton(
-                  onPressed: () => onAddPhase(index),
-                  icon: const Icon(
-                    Icons.add,
-                    size: 15.0,
-                    color: primary50,
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-              Row(
+class _TimerConfigPhaseState extends State<TimerConfigPhase> {
+  bool showOverlay = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final seconds = widget.count % 60;
+    final minutes = widget.count ~/ 60;
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+          child: Container(
+            width: double.infinity,
+            height: 40.0,
+            decoration: BoxDecoration(
+              color: primary700,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    'Phase${index + 1}:',
-                    style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w600,
-                      color: primary400,
+                  CircleAvatar(
+                    radius: 12,
+                    backgroundColor: primary300.withAlpha(75),
+                    child: IconButton(
+                      onPressed: () => widget.onAddPhase(widget.index),
+                      icon: const Icon(
+                        Icons.add,
+                        size: 15.0,
+                        color: primary50,
+                      ),
+                      padding: EdgeInsets.zero,
                     ),
                   ),
-                  SizedBox(
-                    width: 10.0,
-                  ),
-                  Text.rich(
-                    TextSpan(
+                  GestureDetector(
+                    onTap: () {
+                      log("---> Tap on phase");
+                      // _showOverlay(context);
+                      setState(() {
+                        showOverlay = true;
+                      });
+                    },
+                    child: Row(
                       children: [
-                        TextSpan(
-                          text: minutes.toString().padLeft(2, '0'),
+                        Text(
+                          'Phase${widget.index + 1}:',
                           style: TextStyle(
                             fontFamily: 'Roboto',
+                            fontSize: 18.0,
                             fontWeight: FontWeight.w600,
-                            fontSize: 20.0,
-                            color: primary200,
+                            color: primary400,
                           ),
                         ),
-                        TextSpan(
-                          text: 'm ',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 15.0,
-                            color: primary200,
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: minutes.toString().padLeft(2, '0'),
+                                style: TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20.0,
+                                  color: primary200,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'm ',
+                                style: TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15.0,
+                                  color: primary200,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 5.0,
+                        ),
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: seconds.toString().padLeft(2, '0'),
+                                style: TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20.0,
+                                  color: primary200,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 's',
+                                style: TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15.0,
+                                  color: primary200,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(
-                    width: 5.0,
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: seconds.toString().padLeft(2, '0'),
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 20.0,
-                            color: primary200,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 's',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 15.0,
-                            color: primary200,
-                          ),
-                        ),
-                      ],
+                  CircleAvatar(
+                    radius: 12,
+                    backgroundColor: primary300.withAlpha(75),
+                    child: IconButton(
+                      onPressed: () => widget.onRemovePhase(widget.index),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 15.0,
+                        color: primary50,
+                      ),
+                      padding: EdgeInsets.zero,
                     ),
                   ),
                 ],
               ),
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: primary300.withAlpha(75),
-                child: IconButton(
-                  onPressed: () => onRemovePhase(index),
-                  icon: const Icon(
-                    Icons.close,
-                    size: 15.0,
-                    color: primary50,
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        BottomOverlay(
+          show: showOverlay,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                showOverlay = false;
+              });
+            },
+            child: PhaseSetter(count: widget.count),
+          ),
+        )
+      ],
     );
   }
 }
-
