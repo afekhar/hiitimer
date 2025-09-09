@@ -61,6 +61,7 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                     ),
                   ),
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () {
                       log("---> Tap on phase");
                       // _showOverlay(context);
@@ -92,7 +93,7 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                                   style: TextStyle(
                                     fontFamily: 'Roboto',
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 20.0,
+                                    fontSize: 25.0,
                                     color: primary200,
                                   ),
                                 ),
@@ -101,7 +102,7 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                                   style: TextStyle(
                                     fontFamily: 'Roboto',
                                     fontWeight: FontWeight.w400,
-                                    fontSize: 15.0,
+                                    fontSize: 20.0,
                                     color: primary200,
                                   ),
                                 ),
@@ -119,7 +120,7 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                                   style: TextStyle(
                                     fontFamily: 'Roboto',
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 20.0,
+                                    fontSize: 25.0,
                                     color: primary200,
                                   ),
                                 ),
@@ -128,7 +129,7 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                                   style: TextStyle(
                                     fontFamily: 'Roboto',
                                     fontWeight: FontWeight.w400,
-                                    fontSize: 15.0,
+                                    fontSize: 20.0,
                                     color: primary200,
                                   ),
                                 ),

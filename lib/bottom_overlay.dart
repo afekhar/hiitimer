@@ -14,19 +14,10 @@ class BottomOverlay extends StatefulWidget {
 class _BottomOverlayState extends State<BottomOverlay>
     with SingleTickerProviderStateMixin {
   OverlayEntry? _entry;
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 280),
-    reverseDuration: const Duration(milliseconds: 220),
-  );
-  late final Animation<Offset> _slide = Tween<Offset>(
-    begin: const Offset(0, 1), // start off-screen at bottom
-    end: Offset.zero, // on-screen
-  ).animate(CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeOutCubic,
-    reverseCurve: Curves.easeInCubic,
-  ));
+
+  AnimationController? _controller;
+
+  Animation<Offset>? _slide;
 
   Future<void> _showOverlay() async {
     if (_entry != null) return;
@@ -49,7 +40,7 @@ class _BottomOverlayState extends State<BottomOverlay>
                   bottom: 0.0,
                 ),
                 child: SlideTransition(
-                  position: _slide,
+                  position: _slide!,
                   child: Column(
                     children: [
                       Expanded(
@@ -85,20 +76,41 @@ class _BottomOverlayState extends State<BottomOverlay>
 
     // optional delay before animating in
     await Future.delayed(const Duration(milliseconds: 180));
-    if (mounted) await _controller.forward();
+    if (mounted) await _controller!.forward();
   }
 
   Future<void> _hideOverlay() async {
     if (_entry == null) return;
-    await _controller.reverse(); // animate out
+    await _controller!.reverse(); // animate out
     _entry?.remove();
     _entry = null;
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+      reverseDuration: const Duration(milliseconds: 220),
+    );
+
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 1), // start off-screen at bottom
+      end: Offset.zero, // on-screen
+    ).animate(CurvedAnimation(
+      parent: _controller!,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    ));
+  }
+
+  @override
   void dispose() {
     _entry?.remove();
-    _controller.dispose();
+    _controller?.dispose();
+    
     super.dispose();
   }
 

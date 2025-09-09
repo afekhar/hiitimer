@@ -177,7 +177,7 @@ class PhaseSetter extends StatefulWidget {
 }
 
 class _PhaseSetterState extends State<PhaseSetter> {
-  int _count = -1;
+  int _ms = -1;
 
   digitTapped(DigitKey code) {
     if ([
@@ -193,15 +193,15 @@ class _PhaseSetterState extends State<PhaseSetter> {
       DigitKey.nine,
     ].contains(code)) {
       setState(() {
-        _count = _count * 10 + keyToNum(code);
+        _ms = _ms * 10 + keyToNum(code);
       });
     } else if (code == DigitKey.doubeZero) {
       setState(() {
-        _count = _count * 100;
+        _ms = _ms * 100;
       });
     } else if (code == DigitKey.backspace) {
       setState(() {
-        _count = _count ~/ 10;
+        _ms = _ms ~/ 10;
       });
     } else if (code == DigitKey.cancel) {
       widget.onCancel();
@@ -214,15 +214,18 @@ class _PhaseSetterState extends State<PhaseSetter> {
   void initState() {
     super.initState();
 
+    int seconds = widget.count % 60;
+    int minutes = widget.count ~/ 60;
+
     setState(() {
-      _count = widget.count;
+      _ms = (minutes * 100) + seconds;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    int seconds = _count % 60;
-    int minutes = _count ~/ 60;
+    int seconds = _ms % 100;
+    int minutes = _ms ~/ 100;
 
     return DefaultTextStyle(
       style: TextStyle(decoration: TextDecoration.none),
