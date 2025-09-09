@@ -36,13 +36,13 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
           padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
           child: Container(
             width: double.infinity,
-            height: 40.0,
+            height: 60.0,
             decoration: BoxDecoration(
               color: primary700,
-              borderRadius: BorderRadius.circular(20.0),
+              borderRadius: BorderRadius.circular(30.0),
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 15.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -68,72 +68,75 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                         showOverlay = true;
                       });
                     },
-                    child: Row(
-                      children: [
-                        Text(
-                          'Phase${widget.index + 1}:',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w600,
-                            color: primary400,
+                    child: SizedBox(
+                      height: double.infinity,
+                      child: Row(
+                        children: [
+                          Text(
+                            'Phase${widget.index + 1}:',
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w600,
+                              color: primary400,
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 10.0,
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: minutes.toString().padLeft(2, '0'),
-                                style: TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20.0,
-                                  color: primary200,
-                                ),
-                              ),
-                              TextSpan(
-                                text: 'm ',
-                                style: TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15.0,
-                                  color: primary200,
-                                ),
-                              ),
-                            ],
+                          SizedBox(
+                            width: 10.0,
                           ),
-                        ),
-                        SizedBox(
-                          width: 5.0,
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: seconds.toString().padLeft(2, '0'),
-                                style: TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20.0,
-                                  color: primary200,
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: minutes.toString().padLeft(2, '0'),
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20.0,
+                                    color: primary200,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: 's',
-                                style: TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15.0,
-                                  color: primary200,
+                                TextSpan(
+                                  text: 'm ',
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15.0,
+                                    color: primary200,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(
+                            width: 5.0,
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: seconds.toString().padLeft(2, '0'),
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20.0,
+                                    color: primary200,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: 's',
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15.0,
+                                    color: primary200,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   CircleAvatar(
@@ -162,7 +165,15 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                 showOverlay = false;
               });
             },
-            child: PhaseSetter(count: widget.count),
+            child: PhaseSetter(count: widget.count, onCancel: () {
+              setState(() {
+                showOverlay = false;
+              });
+            }, onOK: () {
+              setState(() {
+                showOverlay = false;
+              });
+            },),
           ),
         )
       ],

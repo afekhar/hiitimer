@@ -43,8 +43,8 @@ class _BottomOverlayState extends State<BottomOverlay>
               top: false,
               child: Padding(
                 padding: const EdgeInsets.only(
-                  left: 10.0,
-                  right: 10.0,
+                  left: 5.0,
+                  right: 5.0,
                   top: 40.0,
                   bottom: 0.0,
                 ),
