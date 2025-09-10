@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:hiitimer/theme.dart';
@@ -170,7 +169,7 @@ class PhaseSetter extends StatefulWidget {
 
   final int count;
   final Function onCancel;
-  final Function onOK;
+  final Function(int) onOK;
 
   @override
   State<PhaseSetter> createState() => _PhaseSetterState();
@@ -206,7 +205,10 @@ class _PhaseSetterState extends State<PhaseSetter> {
     } else if (code == DigitKey.cancel) {
       widget.onCancel();
     } else if (code == DigitKey.ok) {
-      widget.onOK();
+      int seconds = _ms % 100;
+      int minutes = _ms ~/ 100;
+
+      widget.onOK((minutes * 60) + seconds);
     }
   }
 

@@ -43,8 +43,8 @@ class TimerConfigBlock extends StatelessWidget {
         builder: (context) => AlertDialog(
           title: const Text("Suppression impossible"),
           content: const Text(
-            "Un bloc doit contenir au moins une phase. "
-            "Vous ne pouvez pas supprimer la dernière phase.",
+            "Un bloc doit contenir au moins un intervalle."
+            "Vous ne pouvez pas supprimer le dernier intervalle.",
           ),
           actions: [
             TextButton(
@@ -80,6 +80,23 @@ class TimerConfigBlock extends StatelessWidget {
     );
   }
 
+  phaseChanged(int phaseIndex, int count) {
+
+    final changedBlock = TimerBlock(
+      phases: [
+        ...block.phases.sublist(0, phaseIndex),
+        count,
+        ...block.phases.sublist(phaseIndex + 1),
+      ],
+      rounds: block.rounds,
+    );
+
+    onBlockChange(
+      index,
+      changedBlock,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -96,11 +113,23 @@ class TimerConfigBlock extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'Bloc${index + 1}',
+                  'Bloc ${index + 1}',
                   style: TextStyle(
                     fontFamily: 'BalooTamma2',
-                    fontSize: 20.0,
+                    fontSize: 25.0,
                     fontWeight: FontWeight.w600,
+                    color: primary400,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  'Intervalles :',
+                  style: TextStyle(
+                    fontFamily: 'BalooTamma2',
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w400,
                     color: primary400,
                   ),
                 ),
@@ -111,6 +140,7 @@ class TimerConfigBlock extends StatelessWidget {
                   count: entry.value,
                   onAddPhase: addPhase,
                   onRemovePhase: (index) => removePhase(index, context),
+                  onPhaseChange: (index, count) => phaseChanged(index, count),
                 );
               }),
               Padding(

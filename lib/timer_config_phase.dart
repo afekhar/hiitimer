@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hiitimer/bottom_overlay.dart';
 import 'package:hiitimer/phase_setter.dart';
@@ -11,24 +10,27 @@ class TimerConfigPhase extends StatefulWidget {
       required this.index,
       required this.count,
       required this.onAddPhase,
-      required this.onRemovePhase});
+      required this.onRemovePhase,
+      required this.onPhaseChange,});
 
   final int index;
   final int count;
   final Function(int index) onAddPhase;
   final Function(int index) onRemovePhase;
+  final Function(int index, int count) onPhaseChange;
 
   @override
   State<TimerConfigPhase> createState() => _TimerConfigPhaseState();
 }
 
 class _TimerConfigPhaseState extends State<TimerConfigPhase> {
-  bool showOverlay = false;
+  bool _showOverlay = false;
 
   @override
   Widget build(BuildContext context) {
-    final seconds = widget.count % 60;
-    final minutes = widget.count ~/ 60;
+
+    final int seconds = widget.count % 60;
+    final int minutes = widget.count ~/ 60;
 
     return Column(
       children: [
@@ -63,28 +65,26 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
-                      log("---> Tap on phase");
-                      // _showOverlay(context);
                       setState(() {
-                        showOverlay = true;
+                        _showOverlay = true;
                       });
                     },
                     child: SizedBox(
                       height: double.infinity,
                       child: Row(
                         children: [
-                          Text(
-                            'Phase${widget.index + 1}:',
-                            style: TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w600,
-                              color: primary400,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10.0,
-                          ),
+                          // Text(
+                          //   'Intervalle ${widget.index + 1}:',
+                          //   style: TextStyle(
+                          //     fontFamily: 'Roboto',
+                          //     fontSize: 16.0,
+                          //     fontWeight: FontWeight.w400,
+                          //     color: primary400,
+                          //   ),
+                          // ),
+                          // SizedBox(
+                          //   width: 10.0,
+                          // ),
                           Text.rich(
                             TextSpan(
                               children: [
@@ -159,20 +159,22 @@ class _TimerConfigPhaseState extends State<TimerConfigPhase> {
           ),
         ),
         BottomOverlay(
-          show: showOverlay,
+          show: _showOverlay,
           child: GestureDetector(
             onTap: () {
               setState(() {
-                showOverlay = false;
+                _showOverlay = false;
               });
             },
             child: PhaseSetter(count: widget.count, onCancel: () {
               setState(() {
-                showOverlay = false;
+                _showOverlay = false;
               });
-            }, onOK: () {
+            }, onOK: (count) {
+              widget.onPhaseChange(widget.index, count);
+
               setState(() {
-                showOverlay = false;
+                _showOverlay = false;
               });
             },),
           ),
