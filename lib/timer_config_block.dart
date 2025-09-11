@@ -96,6 +96,21 @@ class TimerConfigBlock extends StatelessWidget {
     );
   }
 
+  roundsChanged(int phaseIndex, int rounds) {
+
+    final changedBlock = TimerBlock(
+      phases: [
+        ...block.phases,
+      ],
+      rounds: rounds,
+    );
+
+    onBlockChange(
+      index,
+      changedBlock,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -147,6 +162,7 @@ class TimerConfigBlock extends StatelessWidget {
                 child: Center(
                   child: TimerConfigRounds(
                     rounds: block.rounds,
+                    onRoundsChange: (rounds) => roundsChanged(index, rounds),
                   ),
                 ),
               ),

@@ -63,7 +63,7 @@ class TimerConfigPhase extends StatelessWidget {
                       top: false,
                       child: IntrinsicHeight( // Makes the bottom sheet fit its content height
                         child: PhaseSetter(
-                          count: count,
+                          seconds: count,
                           onCancel: () => Navigator.of(context).pop(),
                           onOK: (newCount) {
                             onPhaseChange(index, newCount);
