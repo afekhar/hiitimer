@@ -44,8 +44,7 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
         builder: (context) => AlertDialog(
           title: const Text("Suppression impossible"),
           content: const Text(
-            "Un timer doit contenir au moins un bloc. "
-            "Vous ne pouvez pas supprimer le dernier bloc.",
+            "Un timer doit contenir au moins un bloc. ",
           ),
           actions: [
             TextButton(

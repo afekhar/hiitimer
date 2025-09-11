@@ -43,8 +43,7 @@ class TimerConfigBlock extends StatelessWidget {
         builder: (context) => AlertDialog(
           title: const Text("Suppression impossible"),
           content: const Text(
-            "Un bloc doit contenir au moins un intervalle."
-            "Vous ne pouvez pas supprimer le dernier intervalle.",
+            "Un bloc doit contenir au moins un intervalle.",
           ),
           actions: [
             TextButton(

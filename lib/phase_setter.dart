@@ -190,14 +190,16 @@ class _PhaseSetterState extends State<PhaseSetter> {
       DigitKey.seven,
       DigitKey.eight,
       DigitKey.nine,
+      DigitKey.doubeZero,
     ].contains(code)) {
-      setState(() {
-        _ms = _ms * 10 + keyToNum(code);
-      });
-    } else if (code == DigitKey.doubeZero) {
-      setState(() {
-        _ms = _ms * 100;
-      });
+      final int ms =
+          (code == DigitKey.doubeZero) ? _ms * 100 : _ms * 10 + keyToNum(code);
+
+      if (ms <= 9999) {
+        setState(() {
+          _ms = ms;
+        });
+      }
     } else if (code == DigitKey.backspace) {
       setState(() {
         _ms = _ms ~/ 10;
@@ -208,7 +210,25 @@ class _PhaseSetterState extends State<PhaseSetter> {
       int seconds = _ms % 100;
       int minutes = _ms ~/ 100;
 
-      widget.onOK((minutes * 60) + seconds);
+      if (seconds < 60 && minutes < 60) {
+        widget.onOK((minutes * 60) + seconds);
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Format de temps invalide."),
+            content: const Text(
+              "Les secondes et les minutes doivent être comprises entre 0 et 59.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -231,185 +251,188 @@ class _PhaseSetterState extends State<PhaseSetter> {
 
     return DefaultTextStyle(
       style: TextStyle(decoration: TextDecoration.none),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: minutes.toString().padLeft(2, '0'),
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 60.0,
-                        color: primary800,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 30.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: minutes.toString().padLeft(2, '0'),
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 60.0,
+                          color: primary800,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: 'm ',
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 35.0,
-                        color: primary800,
+                      TextSpan(
+                        text: 'm ',
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 35.0,
+                          color: primary800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 5.0,
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: seconds.toString().padLeft(2, '0'),
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 60.0,
+                          color: primary800,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 's',
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w400,
+                          fontSize: 35.0,
+                          color: primary800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 30.0,
+            ),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ...['1', '2', '3'].map(
+                      (digit) => PhaseDigit(
+                        onDigitTap: () => digitTapped(numToDigitKey(digit)!),
+                        child: Text(
+                          digit,
+                          style: TextStyle(
+                              color: primary50,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 25.0),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(
-                width: 5.0,
-              ),
-              Text.rich(
-                TextSpan(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextSpan(
-                      text: seconds.toString().padLeft(2, '0'),
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 60.0,
-                        color: primary800,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 's',
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 35.0,
-                        color: primary800,
+                    ...['4', '5', '6'].map(
+                      (digit) => PhaseDigit(
+                        onDigitTap: () => digitTapped(numToDigitKey(digit)!),
+                        child: Text(
+                          digit,
+                          style: TextStyle(
+                              color: primary50,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 25.0),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 30.0,
-          ),
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...['1', '2', '3'].map(
-                    (digit) => PhaseDigit(
-                      onDigitTap: () => digitTapped(numToDigitKey(digit)!),
-                      child: Text(
-                        digit,
-                        style: TextStyle(
-                            color: primary50,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 25.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ...['7', '8', '9'].map(
+                      (digit) => PhaseDigit(
+                        onDigitTap: () => digitTapped(numToDigitKey(digit)!),
+                        child: Text(
+                          digit,
+                          style: TextStyle(
+                              color: primary50,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 25.0),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...['4', '5', '6'].map(
-                    (digit) => PhaseDigit(
-                      onDigitTap: () => digitTapped(numToDigitKey(digit)!),
-                      child: Text(
-                        digit,
-                        style: TextStyle(
-                            color: primary50,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 25.0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...['7', '8', '9'].map(
-                    (digit) => PhaseDigit(
-                      onDigitTap: () => digitTapped(numToDigitKey(digit)!),
-                      child: Text(
-                        digit,
-                        style: TextStyle(
-                            color: primary50,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 25.0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PhaseDigit(
-                    onDigitTap: () => digitTapped(DigitKey.doubeZero),
-                    child: Text(
-                      '00',
-                      style: TextStyle(
-                          color: primary50,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 25.0),
-                    ),
-                  ),
-                  PhaseDigit(
-                    onDigitTap: () => digitTapped(DigitKey.zero),
-                    child: Text(
-                      '0',
-                      style: TextStyle(
-                          color: primary50,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 25.0),
-                    ),
-                  ),
-                  PhaseDigit(
-                    onDigitTap: () => digitTapped(DigitKey.backspace),
-                    child: const Icon(
-                      Icons.backspace,
-                      size: 25.0,
-                      color: primary50,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              PhaseDigit(
-                onDigitTap: () => digitTapped(DigitKey.cancel),
-                child: const Icon(
-                  Icons.close,
-                  size: 35.0,
-                  color: primary400,
+                  ],
                 ),
-              ),
-              PhaseDigit(
-                onDigitTap: () => digitTapped(DigitKey.ok),
-                child: const Icon(
-                  Icons.check,
-                  size: 35.0,
-                  color: primary400,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PhaseDigit(
+                      onDigitTap: () => digitTapped(DigitKey.doubeZero),
+                      child: Text(
+                        '00',
+                        style: TextStyle(
+                            color: primary50,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 25.0),
+                      ),
+                    ),
+                    PhaseDigit(
+                      onDigitTap: () => digitTapped(DigitKey.zero),
+                      child: Text(
+                        '0',
+                        style: TextStyle(
+                            color: primary50,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 25.0),
+                      ),
+                    ),
+                    PhaseDigit(
+                      onDigitTap: () => digitTapped(DigitKey.backspace),
+                      child: const Icon(
+                        Icons.backspace,
+                        size: 25.0,
+                        color: primary50,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          )
-        ],
+              ],
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PhaseDigit(
+                  onDigitTap: () => digitTapped(DigitKey.cancel),
+                  child: const Icon(
+                    Icons.close,
+                    size: 35.0,
+                    color: primary400,
+                  ),
+                ),
+                PhaseDigit(
+                  onDigitTap: () => digitTapped(DigitKey.ok),
+                  child: const Icon(
+                    Icons.check,
+                    size: 35.0,
+                    color: primary400,
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
