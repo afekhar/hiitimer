@@ -162,31 +162,34 @@ class _DigitalTimerState extends State<DigitalTimer> {
         DoubleDigits.width + DigitalTimerDots.width + DoubleDigits.width;
     final int timerHeight = DoubleDigits.height;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double widthRatio = constraints.maxWidth / timerWidth;
-        final double heightRatio = constraints.maxHeight / timerHeight;
-
-        final double ratio =
-            widthRatio < heightRatio ? widthRatio : heightRatio;
-
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Opacity(
-                opacity: widget.setup ? 0.0 : 1.0,
-                child: DoubleDigits(
-                    color: "green", number: _minutes, displayRatio: ratio)),
-            Opacity(
-                opacity: widget.setup ? 0.0 : 1.0,
-                child: DigitalTimerDots(color: "green", displayRatio: ratio)),
-            DoubleDigits(
-                color: widget.setup ? "red" : "green",
-                number: _seconds,
-                displayRatio: ratio),
-          ],
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double widthRatio = constraints.maxWidth / timerWidth;
+          final double heightRatio = constraints.maxHeight / timerHeight;
+      
+          final double ratio =
+              widthRatio < heightRatio ? widthRatio : heightRatio;
+      
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Opacity(
+                  opacity: widget.setup ? 0.0 : 1.0,
+                  child: DoubleDigits(
+                      color: "green", number: _minutes, displayRatio: ratio)),
+              Opacity(
+                  opacity: widget.setup ? 0.0 : 1.0,
+                  child: DigitalTimerDots(color: "green", displayRatio: ratio)),
+              DoubleDigits(
+                  color: widget.setup ? "red" : "green",
+                  number: _seconds,
+                  displayRatio: ratio),
+            ],
+          );
+        },
+      ),
     );
   }
 }

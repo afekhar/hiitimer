@@ -62,7 +62,7 @@ class _PhaseSetterState extends State<PhaseSetter> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text("Format de temps invalide."),
+              title: const Text("Format de temps invalide"),
               content: const Text(
                 "Les secondes et les minutes doivent être comprises entre 0 et 59.",
               ),

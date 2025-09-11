@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:hiitimer/double_digits.dart';
@@ -22,9 +23,9 @@ class RoundsCounter extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
+          Container(
             width: (DoubleDigits.width / 2) * ratio,
-            height: (DoubleDigits.height / 4) * ratio,
+            height: (DoubleDigits.height / 2) * ratio,
             child: FittedBox(
               fit: BoxFit.scaleDown, // réduit la taille si nécessaire
               alignment: Alignment.centerLeft, // ou center, right, etc.
@@ -39,10 +40,13 @@ class RoundsCounter extends StatelessWidget {
               ),
             ),
           ),
-          DoubleDigits(
-            color: "red",
-            number: round,
-            displayRatio: ratio,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: DoubleDigits(
+              color: "red",
+              number: round,
+              displayRatio: ratio,
+            ),
           ),
         ],
       );

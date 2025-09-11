@@ -7,8 +7,8 @@ class DigitalTimerDots extends StatefulWidget {
   final String color;
   final double displayRatio;
 
-  static int width = 90;
-  static int height = 418;
+  static int width = 132;
+  static int height = 611;
 
   @override
   State<DigitalTimerDots> createState() => _DigitalTimerDotsState();
