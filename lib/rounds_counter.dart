@@ -23,7 +23,7 @@ class RoundsCounter extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: (DoubleDigits.width / 2) * ratio,
             height: (DoubleDigits.height / 2) * ratio,
             child: FittedBox(
