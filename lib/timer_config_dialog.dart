@@ -6,10 +6,14 @@ import 'package:hiitimer/timer_config_block.dart';
 
 class TimerConfigDialog extends StatefulWidget {
   const TimerConfigDialog(
-      {super.key, required this.timerConfig, required this.onClose});
+      {super.key,
+      required this.timerConfig,
+      required this.onClose,
+      required this.onLaunchTimer});
 
   final WorkoutConfig? timerConfig;
   final VoidCallback onClose;
+  final Function(WorkoutConfig) onLaunchTimer;
 
   @override
   State<TimerConfigDialog> createState() => _TimerConfigDialogState();
@@ -174,22 +178,33 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15.0, horizontal: 30.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius:
-                                            BorderRadius.circular(50.0),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Lancer le timer",
-                                          style: TextStyle(
-                                            fontFamily: 'BalooTamma2',
-                                            fontSize: 20.0,
-                                            fontWeight: FontWeight.w900,
-                                            color: primary50,
+                                    GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () {
+                                        widget.onLaunchTimer(
+                                          WorkoutConfig(
+                                            name: widget.timerConfig!.name,
+                                            blocks: _blocks,
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 15.0, horizontal: 30.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          borderRadius:
+                                              BorderRadius.circular(50.0),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Lancer le timer",
+                                            style: TextStyle(
+                                              fontFamily: 'BalooTamma2',
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w900,
+                                              color: primary50,
+                                            ),
                                           ),
                                         ),
                                       ),

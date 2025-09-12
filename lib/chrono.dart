@@ -47,7 +47,7 @@ class _ChronoInPauseState extends State<ChronoInPause>
           padding:
               const EdgeInsets.symmetric(horizontal: 17), // espace horizontal
           decoration: BoxDecoration(
-            color: Color(0xFF0000FF), // bleu
+            color: Colors.blue, // bleu
             borderRadius: BorderRadius.circular(
                 12), // coins arrondis (~0.25 de la taille)
           ),

@@ -67,11 +67,18 @@ class _HomeState extends State<Home> {
   }
 
   _closeTimerConfig() async {
-    await _launchChrono(context, _currentConfig!);
+    setState(() {
+      _currentConfig = null;
+    });
+  }
+
+  _launchTimer(WorkoutConfig cfg) async {
+    await _launchChrono(context, cfg);
 
     setState(() {
       _currentConfig = null;
     });
+
   }
 
   @override
@@ -98,6 +105,7 @@ class _HomeState extends State<Home> {
             TimerConfigDialog(
               timerConfig: _currentConfig,
               onClose: _closeTimerConfig,
+              onLaunchTimer: (cfg) => _launchTimer(cfg)
             ),
           ],
         ),
