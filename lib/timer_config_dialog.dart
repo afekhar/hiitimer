@@ -103,77 +103,126 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
     }
 
     return Container(
-      color: primary800.withAlpha(75),
-      padding: EdgeInsets.all(20.0),
+      color: primary950.withAlpha(200),
+      height: double.infinity,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: SafeArea(
         child: Stack(
+          alignment: Alignment.center,
           children: [
             Container(
               width: double.infinity,
-              height: double.infinity,
               decoration: BoxDecoration(
                 color: primary950,
                 borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: primary700),
+                border: Border.all(color: primary800),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Padding(
-                    padding:
-                        EdgeInsets.only(left: 20.0, top: 20.0, right: 80.0),
-                    child: Text(
-                      widget.timerConfig!.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontFamily: 'BalooTamma2',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 30.0,
-                          color: primary100),
+                  Column(
+                    mainAxisSize:
+                        MainAxisSize.min, // Shrink as much as possible
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 20.0, top: 20.0, right: 80.0),
+                        child: Text(
+                          widget.timerConfig!.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'BalooTamma2',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 30.0,
+                            color: primary100,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20.0),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height *
+                              0.70, // Aproximativ limit
+                        ),
+                        child: ListView(
+                          shrinkWrap: true, // Adapt to content if smaller
+                          children: [
+                            ..._blocks.asMap().entries.map(
+                                  (entry) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 5.0, horizontal: 15.0),
+                                    child: TimerConfigBlock(
+                                      index: entry.key,
+                                      block: entry.value,
+                                      onBlockChange: (index, bloc) =>
+                                          blockChanged(index, bloc, context),
+                                      onAddBlock: (index) =>
+                                          addBlock(index, context),
+                                      onRemoveBlock: (index) =>
+                                          removeBlock(index, context),
+                                    ),
+                                  ),
+                                ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 30.0,
+                                bottom: 50.0,
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15.0, horizontal: 30.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        borderRadius:
+                                            BorderRadius.circular(50.0),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Lancer le timer",
+                                          style: TextStyle(
+                                            fontFamily: 'BalooTamma2',
+                                            fontSize: 20.0,
+                                            fontWeight: FontWeight.w900,
+                                            color: primary50,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    top: 20.0,
+                    right: 20.0,
+                    child: CircleAvatar(
+                      radius: 15,
+                      backgroundColor: primary300.withAlpha(75),
+                      child: IconButton(
+                        onPressed: widget.onClose,
+                        icon: const Icon(
+                          Icons.close,
+                          size: 15.0,
+                          color: primary50,
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 20.0),
-                  Expanded(
-                      child: ListView(
-                    children: _blocks
-                        .asMap()
-                        .entries
-                        .map((entry) => Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5.0, horizontal: 15.0),
-                              child: TimerConfigBlock(
-                                index: entry.key,
-                                block: entry.value,
-                                onBlockChange: (index, bloc) =>
-                                    blockChanged(index, bloc, context),
-                                onAddBlock: (index) => addBlock(index, context),
-                                onRemoveBlock: (index) =>
-                                    removeBlock(index, context),
-                              ),
-                            ))
-                        .toList(),
-                  ))
                 ],
               ),
             ),
-            Positioned(
-              top: 15.0,
-              right: 15.0,
-              child: CircleAvatar(
-                radius: 15,
-                backgroundColor: primary300.withAlpha(75),
-                child: IconButton(
-                  onPressed: widget.onClose,
-                  icon: const Icon(
-                    Icons.close,
-                    size: 15.0,
-                    color: primary50,
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            )
           ],
         ),
       ),
