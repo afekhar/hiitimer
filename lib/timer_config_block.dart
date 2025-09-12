@@ -23,7 +23,7 @@ class TimerConfigBlock extends StatelessWidget {
 
   removePhase(int phaseIndex, BuildContext context) {
     final newBlock = TimerBlock(
-      phases: block.phases
+      intervals: block.intervals
           .asMap()
           .entries
           .where((e) => e.key != phaseIndex)
@@ -32,7 +32,7 @@ class TimerConfigBlock extends StatelessWidget {
       rounds: block.rounds,
     );
 
-    if (block.phases.length > 1) {
+    if (block.intervals.length > 1) {
       onBlockChange(
         index,
         newBlock,
@@ -57,7 +57,7 @@ class TimerConfigBlock extends StatelessWidget {
   }
 
   addPhase(int phaseIndex) {
-    final newPhase = block.phases
+    final newPhase = block.intervals
         .asMap()
         .entries
         .where((entry) => entry.key == phaseIndex)
@@ -65,10 +65,10 @@ class TimerConfigBlock extends StatelessWidget {
         .value;
 
     final newBlock = TimerBlock(
-      phases: [
-        ...block.phases.sublist(0, phaseIndex + 1),
+      intervals: [
+        ...block.intervals.sublist(0, phaseIndex + 1),
         newPhase,
-        ...block.phases.sublist(phaseIndex + 1),
+        ...block.intervals.sublist(phaseIndex + 1),
       ],
       rounds: block.rounds,
     );
@@ -82,10 +82,10 @@ class TimerConfigBlock extends StatelessWidget {
   phaseChanged(int phaseIndex, int count) {
 
     final changedBlock = TimerBlock(
-      phases: [
-        ...block.phases.sublist(0, phaseIndex),
+      intervals: [
+        ...block.intervals.sublist(0, phaseIndex),
         count,
-        ...block.phases.sublist(phaseIndex + 1),
+        ...block.intervals.sublist(phaseIndex + 1),
       ],
       rounds: block.rounds,
     );
@@ -99,8 +99,8 @@ class TimerConfigBlock extends StatelessWidget {
   roundsChanged(int phaseIndex, int rounds) {
 
     final changedBlock = TimerBlock(
-      phases: [
-        ...block.phases,
+      intervals: [
+        ...block.intervals,
       ],
       rounds: rounds,
     );
@@ -148,7 +148,7 @@ class TimerConfigBlock extends StatelessWidget {
                   ),
                 ),
               ),
-              ...block.phases.asMap().entries.map((entry) {
+              ...block.intervals.asMap().entries.map((entry) {
                 return TimerConfigPhase(
                   index: entry.key,
                   count: entry.value,

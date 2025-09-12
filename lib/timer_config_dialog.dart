@@ -1,8 +1,52 @@
+import 'dart:developer' as dev;
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import 'package:hiitimer/theme.dart';
 import 'package:hiitimer/workout_config.dart';
 import 'package:hiitimer/timer_config_block.dart';
+
+class TimerConfigButton extends StatelessWidget {
+  const TimerConfigButton(
+      {super.key,
+      required this.label,
+      required this.color,
+      required this.onTap});
+
+  final String label;
+  final Color color;
+  final GestureTapCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(50.0),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'BalooTamma2',
+                fontSize: 20.0,
+                fontWeight: FontWeight.w900,
+                color: primary50,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class TimerConfigDialog extends StatefulWidget {
   const TimerConfigDialog(
@@ -76,6 +120,24 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
         ..._blocks.sublist(index + 1)
       ];
     });
+  }
+
+  saveConfig(WorkoutConfig cfg) async {
+    const String alnum =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    final rng = Random();
+    final codeUnits = List.generate(
+      16,
+      (_) => alnum.codeUnitAt(
+        rng.nextInt(alnum.length),
+      ),
+    );
+
+    final key = String.fromCharCodes(codeUnits);
+    final box = Hive.box<WorkoutConfig>('timers');
+
+    await box.put(key, cfg);
   }
 
   @override
@@ -174,43 +236,32 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
                                 top: 30.0,
                                 bottom: 50.0,
                               ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () {
-                                        widget.onLaunchTimer(
-                                          WorkoutConfig(
-                                            name: widget.timerConfig!.name,
-                                            blocks: _blocks,
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 15.0, horizontal: 30.0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue,
-                                          borderRadius:
-                                              BorderRadius.circular(50.0),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Lancer le timer",
-                                            style: TextStyle(
-                                              fontFamily: 'BalooTamma2',
-                                              fontSize: 20.0,
-                                              fontWeight: FontWeight.w900,
-                                              color: primary50,
-                                            ),
-                                          ),
-                                        ),
+                              child: Column(
+                                children: [
+                                  TimerConfigButton(
+                                    label: "Lancer sans enregistrer",
+                                    color: Colors.blue,
+                                    onTap: () => widget.onLaunchTimer(
+                                      WorkoutConfig(
+                                        name: widget.timerConfig!.name,
+                                        blocks: _blocks,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  TimerConfigButton(
+                                    label: "Enregistrer puis lancer",
+                                    color: Colors.green,
+                                    onTap: () {
+                                      WorkoutConfig cfg = WorkoutConfig(
+                                        name: widget.timerConfig!.name,
+                                        blocks: _blocks,
+                                      );
+
+                                      saveConfig(cfg);
+                                      widget.onLaunchTimer(cfg);
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
                           ],

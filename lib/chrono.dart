@@ -182,10 +182,10 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
       });
     }
 
-    if (_phase < widget.config.blocks[_currentBlock].phases.length) {
+    if (_phase < widget.config.blocks[_currentBlock].intervals.length) {
       setState(() {
         _seconds = DigitalTimerSeconds(
-            seconds: widget.config.blocks[_currentBlock].phases[_phase]);
+            seconds: widget.config.blocks[_currentBlock].intervals[_phase]);
       });
     } else {
       _phase = 0;
@@ -201,7 +201,7 @@ class _WorkoutTimerDisplayState extends State<WorkoutTimerDisplay> {
       if (_round + 1 <= _roundsToComplete) {
         setState(() {
           _seconds = DigitalTimerSeconds(
-              seconds: widget.config.blocks[_currentBlock].phases[0]);
+              seconds: widget.config.blocks[_currentBlock].intervals[0]);
           _round++;
         });
       } else {

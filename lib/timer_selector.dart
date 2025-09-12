@@ -1,126 +1,68 @@
-
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import 'package:hiitimer/theme.dart';
 import 'package:hiitimer/workout_config.dart';
 
-
-const List<WorkoutConfig> cfgs = [
-  WorkoutConfig(
-    name: 'TABATA/HIIT',
-    blocks: [
-      TimerBlock(phases: [20, 10], rounds: 7),
-      TimerBlock(phases: [20], rounds: 1),
-    ],
-  ),
-  WorkoutConfig(
-    name: 'EMOM',
-    blocks: [
-      TimerBlock(phases: [60, 60, 60], rounds: 5),
-    ],
-  ),
-  WorkoutConfig(
-    name: 'wod_05092509270',
-    blocks: [
-      TimerBlock(phases: [10], rounds: 1),
-      TimerBlock(phases: [5], rounds: 2),
-      TimerBlock(phases: [3], rounds: 1),
-    ],
-  ),
-  // WorkoutConfig(
-  //   name: 'TABATA',
-  //   blocks: [
-  //     TimerBlock(phases: [20, 10], rounds: 7),
-  //     TimerBlock(phases: [20], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'E1MOM',
-  //   blocks: [
-  //     TimerBlock(phases: [60, 60, 60], rounds: 5),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'wod_05092509270',
-  //   blocks: [
-  //     TimerBlock(phases: [10], rounds: 1),
-  //     TimerBlock(phases: [5], rounds: 2),
-  //     TimerBlock(phases: [3], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'TABATA',
-  //   blocks: [
-  //     TimerBlock(phases: [20, 10], rounds: 7),
-  //     TimerBlock(phases: [20], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'E1MOM',
-  //   blocks: [
-  //     TimerBlock(phases: [60, 60, 60], rounds: 5),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'wod_05092509270',
-  //   blocks: [
-  //     TimerBlock(phases: [10], rounds: 1),
-  //     TimerBlock(phases: [5], rounds: 2),
-  //     TimerBlock(phases: [3], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'TABATA',
-  //   blocks: [
-  //     TimerBlock(phases: [20, 10], rounds: 7),
-  //     TimerBlock(phases: [20], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'E1MOM',
-  //   blocks: [
-  //     TimerBlock(phases: [60, 60, 60], rounds: 5),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'wod_05092509270',
-  //   blocks: [
-  //     TimerBlock(phases: [10], rounds: 1),
-  //     TimerBlock(phases: [5], rounds: 2),
-  //     TimerBlock(phases: [3], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'TABATA',
-  //   blocks: [
-  //     TimerBlock(phases: [20, 10], rounds: 7),
-  //     TimerBlock(phases: [20], rounds: 1),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'E1MOM',
-  //   blocks: [
-  //     TimerBlock(phases: [60, 60, 60], rounds: 5),
-  //   ],
-  // ),
-  // WorkoutConfig(
-  //   name: 'wod_05092509270',
-  //   blocks: [
-  //     TimerBlock(phases: [10], rounds: 1),
-  //     TimerBlock(phases: [5], rounds: 2),
-  //     TimerBlock(phases: [3], rounds: 1),
-  //   ],
-  // ),
-];
-
-
-class TimerSelector extends StatelessWidget {
+class TimerSelector extends StatefulWidget {
   const TimerSelector({super.key, required this.showTimerConfig});
 
   final Function showTimerConfig;
 
   @override
+  State<TimerSelector> createState() => _TimerSelectorState();
+}
+
+class _TimerSelectorState extends State<TimerSelector> {
+  List<WorkoutConfig>? _cfgs;
+
+  _loadConfigs() async {
+    List<WorkoutConfig> cfgs = [
+      WorkoutConfig(
+        name: 'TABATA/HIIT',
+        blocks: [
+          TimerBlock(intervals: [20, 10], rounds: 7),
+          TimerBlock(intervals: [20], rounds: 1),
+        ],
+      ),
+      WorkoutConfig(
+        name: 'EMOM',
+        blocks: [
+          TimerBlock(intervals: [60, 60, 60, 60], rounds: 3),
+        ],
+      ),
+    ];
+
+    final box = Hive.box<WorkoutConfig>('timers');
+    final entries = box.toMap().cast<String, WorkoutConfig>().entries.toList()
+      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+
+    cfgs = [
+      ...cfgs,
+      ...entries.map(
+          (entry) => WorkoutConfig(name: entry.key, blocks: entry.value.blocks))
+    ];
+
+    setState(() {
+      _cfgs = cfgs;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadConfigs();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_cfgs == null) {
+      return Center(
+        child: CircularProgressIndicator(), // Default spinner
+      );
+    }
+
     return SafeArea(
       child: Stack(
         children: [
@@ -140,7 +82,10 @@ class TimerSelector extends StatelessWidget {
                           child: Container(
                             width: double.infinity,
                             padding: EdgeInsets.only(
-                                left: 10.0, right: 10.0, bottom: 20.0, top: 5.0),
+                                left: 10.0,
+                                right: 10.0,
+                                bottom: 20.0,
+                                top: 5.0),
                             decoration: BoxDecoration(
                               color: primary900.withAlpha(220),
                               borderRadius: BorderRadius.circular(20.0),
@@ -160,14 +105,14 @@ class TimerSelector extends StatelessWidget {
                                         color: primary400),
                                   ),
                                 ),
-                                ...cfgs.map(
+                                ..._cfgs!.map(
                                   (cfg) => Padding(
                                     padding:
                                         EdgeInsets.symmetric(horizontal: 10.0),
                                     child: GestureDetector(
                                       onTap: () =>
                                           // _launchChrono(context, cfg),
-                                          showTimerConfig(cfg),
+                                          widget.showTimerConfig(cfg),
                                       child: Container(
                                         width: double.infinity,
                                         padding: const EdgeInsets.all(16.0),
@@ -175,9 +120,11 @@ class TimerSelector extends StatelessWidget {
                                             color: primary800.withAlpha(150),
                                             border: const Border(
                                               top: BorderSide(
-                                                  color: primary700, width: 1.0),
+                                                  color: primary700,
+                                                  width: 1.0),
                                               bottom: BorderSide(
-                                                  color: primary900, width: 2.0),
+                                                  color: primary900,
+                                                  width: 2.0),
                                             )),
                                         child: Text(
                                           cfg.name,
