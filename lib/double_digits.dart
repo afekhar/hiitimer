@@ -11,8 +11,8 @@ class DoubleDigits extends StatefulWidget {
   final int number;
   final double displayRatio;
 
-  static int width = 400 * 2;
-  static int height = 611;
+  static int width = 260 * 2;
+  static int height = 400;
 
   @override
   State<DoubleDigits> createState() => _DoubleDigitsState();
@@ -23,8 +23,9 @@ class _DoubleDigitsState extends State<DoubleDigits> {
   void didChangeDependencies() {
     for (final digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
       precacheImage(
-          AssetImage('assets/images/digits/${widget.color}/$digit.png'),
-          context);
+        AssetImage('assets/images/digits/${widget.color}/$digit.png'),
+        context,
+      );
     }
 
     super.didChangeDependencies();
