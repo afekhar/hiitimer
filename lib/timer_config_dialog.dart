@@ -138,8 +138,8 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
 
   Future<void> _saveAndLaunch(BuildContext context) async {
     final formKey = GlobalKey<FormState>();
-    final TextEditingController controller = TextEditingController(
-        text: _generateDefaultTimerName());
+    final TextEditingController controller =
+        TextEditingController(text: _generateDefaultTimerName());
 
     final box = Hive.box<WorkoutConfig>('timers');
 
@@ -161,6 +161,9 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
               child: TextFormField(
                 controller: controller,
                 autofocus: true,
+                autocorrect: false,
+                enableSuggestions: false,
+                keyboardType: TextInputType.text,
                 decoration: const InputDecoration(
                   hintText: "Entrez le nom du timer",
                 ),
@@ -184,19 +187,39 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
               ),
             ),
             actions: [
-              TimerConfigButton(
-                label: "Enregister",
-                color: Colors.blue,
+              TextButton(
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50.0),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  child: Text("Annuler", style: TextStyle(
+                      color: primary50,
+                      fontFamily: 'BalooTamma2',
+                      fontWeight: FontWeight.w700
+                  ),),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50.0),
+                    color: primary800
+                  ),
+                  child: Text("Enregister", style: TextStyle(
+                    color: primary50,
+                    fontFamily: 'BalooTamma2',
+                    fontWeight: FontWeight.w600
+                  )),
+                ),
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
                     Navigator.of(context).pop(controller.text.trim());
                   }
                 },
-              ),
-              TimerConfigButton(
-                label: "Annuler",
-                color: Theme.of(context).colorScheme.error,
-                onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           );
