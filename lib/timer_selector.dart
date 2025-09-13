@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 
 import 'package:hiitimer/theme.dart';
 import 'package:hiitimer/workout_config.dart';
+import 'package:hiitimer/workout_configs.dart';
 
 class TimerSelector extends StatefulWidget {
   const TimerSelector({super.key, required this.showTimerConfig});
@@ -17,28 +18,13 @@ class _TimerSelectorState extends State<TimerSelector> {
   List<WorkoutConfig>? _cfgs;
 
   _loadConfigs() async {
-    List<WorkoutConfig> cfgs = [
-      WorkoutConfig(
-        name: 'TABATA/HIIT',
-        blocks: [
-          TimerBlock(intervals: [20, 10], rounds: 7),
-          TimerBlock(intervals: [20], rounds: 1),
-        ],
-      ),
-      WorkoutConfig(
-        name: 'EMOM',
-        blocks: [
-          TimerBlock(intervals: [60, 60, 60, 60], rounds: 3),
-        ],
-      ),
-    ];
 
     final box = Hive.box<WorkoutConfig>('timers');
     final entries = box.toMap().cast<String, WorkoutConfig>().entries.toList()
       ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
 
-    cfgs = [
-      ...cfgs,
+    final cfgs = [
+      ...defaultConfigs,
       ...entries.map(
           (entry) => WorkoutConfig(name: entry.key, blocks: entry.value.blocks))
     ];
@@ -111,7 +97,6 @@ class _TimerSelectorState extends State<TimerSelector> {
                                         EdgeInsets.symmetric(horizontal: 10.0),
                                     child: GestureDetector(
                                       onTap: () =>
-                                          // _launchChrono(context, cfg),
                                           widget.showTimerConfig(cfg),
                                       child: Container(
                                         width: double.infinity,

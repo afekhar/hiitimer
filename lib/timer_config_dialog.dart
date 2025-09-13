@@ -1,22 +1,22 @@
-import 'dart:developer' as dev;
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import 'package:hiitimer/theme.dart';
 import 'package:hiitimer/workout_config.dart';
 import 'package:hiitimer/timer_config_block.dart';
+import 'package:hiitimer/workout_configs.dart';
 
 class TimerConfigButton extends StatelessWidget {
-  const TimerConfigButton(
-      {super.key,
-      required this.label,
-      required this.color,
-      required this.onTap});
+  const TimerConfigButton({
+    super.key,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
 
   final String label;
   final Color color;
-  final GestureTapCallback onTap;
+  final GestureTapCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class TimerConfigButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+        onTap: onPressed,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
           decoration: BoxDecoration(
@@ -49,11 +49,12 @@ class TimerConfigButton extends StatelessWidget {
 }
 
 class TimerConfigDialog extends StatefulWidget {
-  const TimerConfigDialog(
-      {super.key,
-      required this.timerConfig,
-      required this.onClose,
-      required this.onLaunchTimer});
+  const TimerConfigDialog({
+    super.key,
+    required this.timerConfig,
+    required this.onClose,
+    required this.onLaunchTimer,
+  });
 
   final WorkoutConfig? timerConfig;
   final VoidCallback onClose;
@@ -122,22 +123,96 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
     });
   }
 
-  saveConfig(WorkoutConfig cfg) async {
-    const String alnum =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  String _generateDefaultTimerName() {
+    final now = DateTime.now();
 
-    final rng = Random();
-    final codeUnits = List.generate(
-      16,
-      (_) => alnum.codeUnitAt(
-        rng.nextInt(alnum.length),
-      ),
-    );
+    final dd = now.day.toString().padLeft(2, '0');
+    final mm = now.month.toString().padLeft(2, '0');
+    final yy = (now.year % 100).toString().padLeft(2, '0');
+    final hh = now.hour.toString().padLeft(2, '0');
+    final min = now.minute.toString().padLeft(2, '0');
+    final sec = now.second.toString().padLeft(2, '0');
 
-    final key = String.fromCharCodes(codeUnits);
+    return "timer_$dd$mm$yy$hh$min$sec";
+  }
+
+  Future<void> _saveAndLaunch(BuildContext context) async {
+    final formKey = GlobalKey<FormState>();
+    final TextEditingController controller = TextEditingController(
+        text: _generateDefaultTimerName());
+
     final box = Hive.box<WorkoutConfig>('timers');
 
-    await box.put(key, cfg);
+    final List<String> existingKeys = [
+      ...defaultConfigs.map((cfg) => cfg.name),
+      ...box.toMap().cast<String, WorkoutConfig>().entries.map((e) => e.key),
+    ];
+
+    final timerKey = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text("Nom du timer"),
+            scrollable: true,
+            content: Form(
+              key: formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: TextFormField(
+                controller: controller,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: "Entrez le nom du timer",
+                ),
+                onChanged: (_) {
+                  // Here, setState is not used to change a state variable, but to force a rebuild
+                  // so that the validation is re-evaluated and the error message disappears
+                  // instantly when the user corrects their input.
+                  setState(() {
+                    formKey.currentState?.validate();
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Le nom ne peut pas être vide";
+                  }
+                  if (existingKeys.contains(value.trim())) {
+                    return "Ce nom existe déjà";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            actions: [
+              TimerConfigButton(
+                label: "Enregister",
+                color: Colors.blue,
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    Navigator.of(context).pop(controller.text.trim());
+                  }
+                },
+              ),
+              TimerConfigButton(
+                label: "Annuler",
+                color: Theme.of(context).colorScheme.error,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        });
+      },
+    );
+
+    if (timerKey != null) {
+      WorkoutConfig cfg = WorkoutConfig(
+        name: timerKey,
+        blocks: _blocks,
+      );
+
+      box.put(timerKey, cfg);
+      widget.onLaunchTimer(cfg);
+    }
   }
 
   @override
@@ -182,7 +257,7 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
               decoration: BoxDecoration(
                 color: primary950,
                 borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: primary800),
+                border: Border.all(color: primary700),
               ),
               child: Stack(
                 children: [
@@ -207,11 +282,7 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
                         ),
                       ),
                       const SizedBox(height: 20.0),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height *
-                              0.70, // Aproximativ limit
-                        ),
+                      Flexible(
                         child: ListView(
                           shrinkWrap: true, // Adapt to content if smaller
                           children: [
@@ -232,16 +303,15 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
                                   ),
                                 ),
                             Padding(
-                              padding: const EdgeInsets.only(
-                                top: 30.0,
-                                bottom: 50.0,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 30.0,
                               ),
                               child: Column(
                                 children: [
                                   TimerConfigButton(
                                     label: "Lancer sans enregistrer",
                                     color: Colors.blue,
-                                    onTap: () => widget.onLaunchTimer(
+                                    onPressed: () => widget.onLaunchTimer(
                                       WorkoutConfig(
                                         name: widget.timerConfig!.name,
                                         blocks: _blocks,
@@ -251,15 +321,7 @@ class _TimerConfigDialogState extends State<TimerConfigDialog> {
                                   TimerConfigButton(
                                     label: "Enregistrer puis lancer",
                                     color: Colors.green,
-                                    onTap: () {
-                                      WorkoutConfig cfg = WorkoutConfig(
-                                        name: widget.timerConfig!.name,
-                                        blocks: _blocks,
-                                      );
-
-                                      saveConfig(cfg);
-                                      widget.onLaunchTimer(cfg);
-                                    },
+                                    onPressed: () => _saveAndLaunch(context),
                                   ),
                                 ],
                               ),
